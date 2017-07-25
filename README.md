@@ -4,7 +4,7 @@ Get Canadian Weather Observations
 Introduction
 ------------
 
-The `get_canadian_weather_obervation.py` is a python script used to download the [observation files from Environment and Climate change Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (ECCC) on your local computer.
+The `get_canadian_weather_obervation.py` is a python3 script used to download the [observation files from Environment and Climate change Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (ECCC) on your local computer.
 
 It works under GNU/Linux, Windows and Mac OS X.
 ___
@@ -46,7 +46,7 @@ where:
 | `-h`, `--help` | Show help message and exit      | 
 | `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.      | 
 |`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
-|`-f` `--format`&nbsp;[CSV&#124;XML]| Download the files in CSV or XML format. Default value is CSV.
+|`-f` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
 |`-D` `--date` YYYY[-MM[-DD]]]| Get the observations for this specific date only.  `--before-date` and  `--after-date` are ignored if provided.
 |`-E` `--after-date` YYYY[-MM[-DD]]]| Get the observations after this date. Stops at `--before-date` if specified, otherwise download the observations until the last observation available.
 |`-F` `--before-date` YYYY[-MM[-DD]]]| Get the observations before this date. Stops at `--after-date` if specified, otherwise download the observations until the first observation available.
@@ -59,8 +59,22 @@ where:
 Usage
 -----
 
-Get the XML files for the station 
+Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML format
 ```bash
- python exif_rename_files.py /home/miguel/photo/DSC0000.JPG
+ python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml YBG
 ```
 <br />
+
+Get all the hourly values for all the Canadian stations for the year 2012
+```bash
+ python get_canadian_weather_obervation.py --hourly -o /home/miguel/download --date 2012 all
+```
+<br />
+
+Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989
+```bash
+ python get_canadian_weather_obervation.py --hourly --daily --after-date 1980-01 --before-date 1990-01 -o /home/miguel/download BC
+```
+<br />
+
+
