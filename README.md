@@ -34,7 +34,11 @@ python get_canadian_weather_obervation.py [OPTIONS] INPUT
 ```
 <br />
 where:   
-* INPUT: List of [stations ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or [two-letter province](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm) code or "all" for all available stations
+* INPUT is one or many of these values:
+ * [ECCC internal station ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
+ * [two-letter province code](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm)
+ * [three-letter IATA airport code](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y)
+ * `all` for all available stations
 * OPTIONS are described in the table below.
 
 | Options        | Description   |
@@ -55,7 +59,7 @@ where:
 Usage
 -----
 
-Copy the image directly in the folder where it is located:  
+Get the XML files for the station 
 ```bash
  python exif_rename_files.py /home/miguel/photo/DSC0000.JPG
 ```
