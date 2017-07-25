@@ -60,19 +60,19 @@ where:
 Usage
 -----
 
-Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML format (note date required, since the all the historical monthly averages are contained in one file)
+Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML French format (note date required, since the all the historical monthly averages are contained in one file)
 ```bash
- python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml YBG
+ python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml -l fr YBG
 ```
 <br />
 
-Get all the hourly values for all the Canadian stations for the year 2012 in csv format
+Get all the hourly values for all the Canadian stations for the year 2012 in csv English format
 ```bash
  python get_canadian_weather_obervation.py --hourly -o /home/miguel/download --date 2012 all
 ```
 <br />
 
-Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989 in csv format
+Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989 in csv English format
 ```bash
  python get_canadian_weather_obervation.py --hourly --daily --after-date 1980-01 --before-date 1990-01 -o /home/miguel/download BC
 ```
