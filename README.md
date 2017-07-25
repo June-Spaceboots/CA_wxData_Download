@@ -37,22 +37,20 @@ where:
 * INPUT: List of [stations ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or [two-letter province](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm) code or "all" for all available stations
 * OPTIONS are described in the table below.
 
-
-OPTIONS
-------------
-
-
-
-* `--output-directoy -o DIRECTORY`: output where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.
-* `--format [CSV|XML]`: Download the files in CSV or XML format. Default value is CSV.
-
-* `--date YYYY[-MM[-DD]]]`: get the observations for this specific date only.  `--before-date` and  `--after-date` are ignored if provided.
-* `--after-date YYYY[-MM[-DD]]]`: get the observations after this date. Stops at `--before-date` if specified, otherwise download the observations until the last observation available.
-* `--before-date "YYYY[-MM[-DD]]]`: get the observations before this date. Stops at `--after-date` if specified, otherwise download the observations until the first observation available.
-
-* `--hourly`:  data values for observations taken on an hourly basis. (1 file per month)
-* `--daily`: get data values for observations taken once in a 24-hour period. (1 file per year)
-* `--monthly`: get averages for each month, derived from daily data values (1 file for the whole period)
+| Options        | Description   |
+| ------------- |-------------| 
+| `-h`, `--help` | Show help message and exit      | 
+| `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.      | 
+|`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
+|`-f` `--format`&nbsp;[CSV&#124;XML]| Download the files in CSV or XML format. Default value is CSV.
+|`-D` `--date` YYYY[-MM[-DD]]]| Get the observations for this specific date only.  `--before-date` and  `--after-date` are ignored if provided.
+|`-E` `--after-date` YYYY[-MM[-DD]]]| Get the observations after this date. Stops at `--before-date` if specified, otherwise download the observations until the last observation available.
+|`-F` `--before-date` YYYY[-MM[-DD]]]| Get the observations before this date. Stops at `--after-date` if specified, otherwise download the observations until the first observation available.
+|`-H` `--hourly`| Get data values for observations taken on an hourly basis. (1 file per month)
+|`-D` `--daily`| Get data values for observations taken once in a 24-hour period. (1 file per year)
+|`-M` `--monthly`| Get averages for each month, derived from daily data values (1 file for the whole period)
+|`-v` `--verbose`  | Explain what is being done |
+|`-V` `--version`|Output version information and exit|
 
 Usage
 -----
