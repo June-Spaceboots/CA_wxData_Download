@@ -45,6 +45,7 @@ where:
 | ------------- |-------------| 
 | `-h`, `--help` | Show help message and exit      | 
 | `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.      | 
+| `-l` `--lang` [en&#124;fr]| Language in which the data will be downloaded (en = English, fr = French). Default is English.
 |`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
 |`-f` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
 |`-D` `--date` YYYY[-MM[-DD]]]| Get the observations for this specific date only.  `--before-date` and  `--after-date` are ignored if provided.
