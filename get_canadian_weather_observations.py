@@ -32,6 +32,8 @@ import os
 import datetime
 import urllib
 import requests
+import io
+import csv
 
 VERSION = "0.1"
 # Verbose level:
@@ -42,7 +44,12 @@ VERBOSE= 2
 
 nGlobalVerbosity = 1
 
+# URLs
 ECCC_WEBSITE_URL="http://climate.weather.gc.ca/"
+ECCC_FTP_URL="ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/"
+EN_STATION_LIST=ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
+#FR_STATION_LIST=ECCC_FTP_URL + "R%E9pertoire%20des%20stations%20FR.csv"
+FR_STATION_LIST="http://bit.ly/2uXbN9u" # Forced to use bitly because of encoding problem with Répertoire"
 
 def my_print(sMessage, nMessageVerbosity=NORMAL):
    """
@@ -55,6 +62,7 @@ def my_print(sMessage, nMessageVerbosity=NORMAL):
       print (sMessage)
 
 
+
 def check_eccc_climate_connexion():
    """
    Check if we can connect the ECCC Climate web site. If not, there is point to continue.
@@ -62,18 +70,45 @@ def check_eccc_climate_connexion():
 
    my_print("Check if ECCC Climate web site is available.", nMessageVerbosity=VERBOSE)
 
-   try:
-      urllib.request.urlopen(ECCC_WEBSITE_URL)
-   except urllib.error.URLError :
-         my_print ("ERROR: Climate web site not available", nMessageVerbosity=NORMAL)
+   for sURL in [ECCC_WEBSITE_URL, ECCC_FTP_URL]:
+      try:
+         urllib.request.urlopen(sURL)
+      except urllib.error.URLError :
+         my_print ("ERROR: Climate web or ftp site not available", nMessageVerbosity=NORMAL)
          my_print ("Check your internet connexion or try to reach\n '" +\
-                   ECCC_WEBSITE_URL + "'\n in a web browser.", nMessageVerbosity=NORMAL)
+                   sURL + "'\n in a web browser.", nMessageVerbosity=NORMAL)
          my_print ("Exiting.", nMessageVerbosity=NORMAL)
-         
          sys.exit(1)
 
-   my_print("ECCC Climate web site reached! Continuing. ", nMessageVerbosity=VERBOSE)
-      
+   my_print("ECCC Climate web and ftp sites reached! Continuing. ", nMessageVerbosity=VERBOSE)
+
+   
+def  load_station_list(sLang):
+   """
+   Download the latest file from the ECCC climate web site.
+   """
+
+   if sLang == "en":
+      sURLStation = EN_STATION_LIST
+   elif sLang == "fr":
+      sURLStation = FR_STATION_LIST
+
+   try:
+      # Recipe from https://stackoverflow.com/questions/21351882/reading-data-from-a-csv-file-online-in-python-3
+      webpage = urllib.request.urlopen(sURLStation)
+#      datareader = csv.reader(io.TextIOWrapper(webpage))
+      datareader = csv.DictReader(io.TextIOWrapper(webpage))
+      print (type(datareader))
+   except urllib.error.URLError :
+         my_print ("WARNING: Online CSV list of stations not available", nMessageVerbosity=NORMAL)
+         my_print ("Cannot reach:\n '" +\
+                   sURLStation + "'\n", nMessageVerbosity=NORMAL)
+         my_print ("Using the local version instead. Station list may be not up to date.",\
+                   nMessageVerbosity=NORMAL)
+
+         # TODO: load local CSV file
+   
+   
 def get_canadian_weather_observations(tOptions):
    """
    Download the observation files from Environment and Climate change Canada (ECCC) on your local computer.
@@ -81,6 +116,9 @@ def get_canadian_weather_observations(tOptions):
 
    # Check in the first place if we can contact ECCC web site
    check_eccc_climate_connexion()
+
+   # Load the station list
+   load_station_list(tOptions.Language)
    
 
 ############################################################
@@ -106,7 +144,7 @@ def get_command_line():
    parser.add_argument("--dry-run", "-t", dest="DryRun", \
                      help="Execute the program, but do not download any file",\
                        action="store_true", default=False)
-   parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), \
+   parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), choices=["fr","en"], \
                      help="Language in which the data will be downloaded (en = English, fr = French). Default is English.",\
                        action="store", type=str, default="en")   
    parser.add_argument("--format", "-F", dest="Format", metavar=("[xml|csv]"), \
