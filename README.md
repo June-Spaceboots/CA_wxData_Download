@@ -49,10 +49,10 @@ where:
 | `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.      | 
 | `-l` `--lang` [en&#124;fr]| Language in which the data will be downloaded (en = English, fr = French). Default is English.
 |`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
-|`-f` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
-|`-D` `--date` YYYY[-MM[-DD]]]| Get the observations for this specific date only.  `--before-date` and  `--after-date` are ignored if provided.
-|`-E` `--after-date` YYYY[-MM[-DD]]]| Get the observations after this date. Stops at `--before-date` if specified, otherwise download the observations until the last observation available.
-|`-F` `--before-date` YYYY[-MM[-DD]]]| Get the observations before this date. Stops at `--after-date` if specified, otherwise download the observations until the first observation available.
+|`-F` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
+|`-d` `--date` YYYY[-MM[-DD]]| Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided.
+|`-e` `--start-date` YYYY[-MM[-DD]]| Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.
+|`-f` `--end-date` YYYY[-MM[-DD]]| Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.
 |`-H` `--hourly`| Get data values for observations taken on an hourly basis. (1 file per month)
 |`-D` `--daily`| Get data values for observations taken once in a 24-hour period. (1 file per year)
 |`-M` `--monthly`| Get averages for each month, derived from daily data values (1 file for the whole period)
