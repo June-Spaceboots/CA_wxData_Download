@@ -30,6 +30,8 @@ Date: July 25th 2017
 import sys
 import os
 import datetime
+import urllib
+import requests
 
 VERSION = "0.1"
 # Verbose level:
@@ -40,6 +42,8 @@ VERBOSE= 2
 
 nGlobalVerbosity = 1
 
+ECCC_WEBSITE_URL="http://climate.weather.gc.ca/"
+
 def my_print(sMessage, nMessageVerbosity=NORMAL):
    """
    Use this method to write the message in the standart output 
@@ -49,13 +53,35 @@ def my_print(sMessage, nMessageVerbosity=NORMAL):
       print (sMessage)
    elif nMessageVerbosity == VERBOSE and nGlobalVerbosity == VERBOSE:
       print (sMessage)
-   
+
+
+def check_eccc_climate_connexion():
+   """
+   Check if we can connect the ECCC Climate web site. If not, there is point to continue.
+   """
+
+   my_print("Check if ECCC Climate web site is available.", nMessageVerbosity=VERBOSE)
+
+   try:
+      urllib.request.urlopen(ECCC_WEBSITE_URL)
+   except urllib.error.URLError :
+         my_print ("ERROR: Climate web site not available", nMessageVerbosity=NORMAL)
+         my_print ("Check your internet connexion or try to reach\n '" +\
+                   ECCC_WEBSITE_URL + "'\n in a web browser.", nMessageVerbosity=NORMAL)
+         my_print ("Exiting.", nMessageVerbosity=NORMAL)
+         
+         sys.exit(1)
+
+   my_print("ECCC Climate web site reached! Continuing. ", nMessageVerbosity=VERBOSE)
+      
 def get_canadian_weather_observations(tOptions):
    """
    Download the observation files from Environment and Climate change Canada (ECCC) on your local computer.
    """
 
-
+   # Check in the first place if we can contact ECCC web site
+   check_eccc_climate_connexion()
+   
 
 ############################################################
 # get_canadian_weather_observations in Command line
@@ -80,22 +106,22 @@ def get_command_line():
    parser.add_argument("--dry-run", "-t", dest="DryRun", \
                      help="Execute the program, but do not download any file",\
                        action="store_true", default=False)
-   parser.add_argument("--lang", "-l", dest="Language",  \
+   parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), \
                      help="Language in which the data will be downloaded (en = English, fr = French). Default is English.",\
                        action="store", type=str, default="en")   
-   parser.add_argument("--format", "-F", dest="Format",  \
+   parser.add_argument("--format", "-F", dest="Format", metavar=("[xml|csv]"), \
                        help="Download the files in 'csv' or 'xml' format. Default value is 'csv'.",\
                        action="store", type=str, default="xml")
    # Date stuff
-   parser.add_argument("--date", "-d", dest="DateRequested", \
+   parser.add_argument("--date", "-d", dest="DateRequested", metavar=("YYYY[-MM[-DD]]") ,\
                        help="Get the observations for this specific date only.  --start-date and  --end-date are ignored if provided. Format is YYYY[-MM[-DD]]",\
-                       action="store", type=lambda d: datetime.strptime(d, '%Y-%m-%d'), default=None)
-   parser.add_argument("--start-date", "-e", dest="StartDate", \
+                       action="store", type=str, default=None)
+   parser.add_argument("--start-date", "-e", dest="StartDate", metavar=("YYYY[-MM[-DD]]"), \
                        help="Get the observations after this date. Stops at --end-date if specified, otherwise download the observations until the last observation available. Format is YYYY[-MM[-DD]]",\
-                       action="store", type=lambda d: datetime.strptime(d, '%Y-%m-%d'), default=None)
-   parser.add_argument("--end-date", "-f", dest="EndDate", \
+                       action="store", type=str, default=None)
+   parser.add_argument("--end-date", "-f", dest="EndDate",metavar=("YYYY[-MM[-DD]]"), \
                        help="Get the observations before this date. Stops at --start-date if specified, otherwise download the observations until the first observation available. Format is YYYY[-MM[-DD]]",\
-                       action="store", type=lambda d: datetime.strptime(d, '%Y-%m-%d'), default=None)
+                       action="store", type=str, default=None)
    # hourly, daily, monthly
    parser.add_argument("--hourly", "-H", dest="Hourly", \
                      help="Get data values for observations taken on an hourly basis. (1 file per month)",\
@@ -116,7 +142,7 @@ def get_command_line():
 
    # Parse the args
    options = parser.parse_args()
-
+   
    if options.bVersion:
       print ("get_canadian_weather_observations.py version: " + VERSION)
       print ("Copyright (C) 2017 Free Software Foundation, Inc.")
@@ -131,6 +157,17 @@ def get_command_line():
       print ("Error: Directory '%s' provided in '--output-directory' does not exist or is not a directory. Please provide a valid output directory. Exiting." % (options.OutputDirectory))
       exit (3)
 
+
+   # If dates are provided, check if the file format is fine.
+#   if options.DateRequested is not None:
+#      sDate = options.DateRequested
+#      if len(sDate) == 4: # Only YYYY should be provided
+#         options.DateRequested = datetime.datetime.strptime(sDate, '%Y')
+#         
+#      print (options.DateRequested)
+
+
+      
    # Set the global verbosity
    global nGlobalVerbosity
    if options.Verbosity:
