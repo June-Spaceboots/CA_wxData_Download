@@ -44,12 +44,54 @@ VERBOSE= 2
 
 nGlobalVerbosity = 1
 
+# Dictionnary used for variables specific to the language of the request
+dLang = {}
+
 # URLs
-ECCC_WEBSITE_URL="http://climate.weather.gc.ca/"
-ECCC_FTP_URL="ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/"
-EN_STATION_LIST=ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
+ECCC_WEBSITE_URL = "http://climate.weather.gc.ca/"
+ECCC_FTP_URL = "ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/"
+STATION_LIST_EN = ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
 #FR_STATION_LIST=ECCC_FTP_URL + "R%E9pertoire%20des%20stations%20FR.csv"
-FR_STATION_LIST="http://bit.ly/2uXbN9u" # Forced to use bitly because of encoding problem with Répertoire"
+# Forced to use bitly because of encoding problem with 'Répertoire' "
+STATION_LIST_FR = "http://bit.ly/2uXbN9u" 
+
+# CSV file station list
+COLUMN_TITLE_EN=["Name","Province","Climate ID","Station ID","WMO ID","TC ID",\
+                 "Latitude (Decimal Degrees)","Longitude (Decimal Degrees)",\
+                 "Latitude","Longitude","Elevation (m)","First Year","Last Year",\
+                 "HLY First Year","HLY Last Year","DLY First Year","DLY Last Year",\
+                 "MLY First Year","MLY Last Year"]
+station_list = None
+dStationAirport = {}
+dStationList = {}
+dProvTerrList = { "AB" : {}, \
+                  "BC" : {}, \
+                  "MB" : {}, \
+                  "NB" : {}, \
+                  "NL" : {}, \
+                  "NS" : {}, \
+                  "NT" : {}, \
+                  "NU" : {}, \
+                  "ON" : {}, \
+                  "PE" : {}, \
+                  "QC" : {}, \
+                  "SK" : {}, \
+                  "YT" : {}  }
+dProvFR = { "AB" : "ALBERTA", \
+            "BC" : "COLOMBIE-BRITANNIQUE", \
+            "MB" : "MANITOBA", \
+                  "NB" : {}, \
+                  "NL" : {}, \
+                  "NS" : {}, \
+                  "NT" : {}, \
+                  "NU" : {}, \
+                  "ON" : {}, \
+                  "PE" : {}, \
+                  "QC" : {}, \
+                  "SK" : {}, \
+                  "YT" : {}  }
+
+                  
 
 def my_print(sMessage, nMessageVerbosity=NORMAL):
    """
@@ -70,55 +112,110 @@ def check_eccc_climate_connexion():
 
    my_print("Check if ECCC Climate web site is available.", nMessageVerbosity=VERBOSE)
 
-   for sURL in [ECCC_WEBSITE_URL, ECCC_FTP_URL]:
-      try:
-         urllib.request.urlopen(sURL)
-      except urllib.error.URLError :
-         my_print ("ERROR: Climate web or ftp site not available", nMessageVerbosity=NORMAL)
-         my_print ("Check your internet connexion or try to reach\n '" +\
-                   sURL + "'\n in a web browser.", nMessageVerbosity=NORMAL)
-         my_print ("Exiting.", nMessageVerbosity=NORMAL)
-         sys.exit(1)
+   try:
+      urllib.request.urlopen(ECCC_WEBSITE_URL)
+   except urllib.error.URLError :
+      my_print ("ERROR: Climate web site not available", nMessageVerbosity=NORMAL)
+      my_print ("Check your internet connexion or try to reach\n '" +\
+                ECCC_WEBSITE_URL + "'\n in a web browser.", nMessageVerbosity=NORMAL)
+      my_print ("Exiting.", nMessageVerbosity=NORMAL)
+      sys.exit(1)
 
    my_print("ECCC Climate web and ftp sites reached! Continuing. ", nMessageVerbosity=VERBOSE)
 
    
-def  load_station_list(sLang):
+def  load_station_list(sPath):
    """
    Download the latest file from the ECCC climate web site.
    """
 
-   if sLang == "en":
-      sURLStation = EN_STATION_LIST
-   elif sLang == "fr":
-      sURLStation = FR_STATION_LIST
+   # Check if a local path is given
+   if sPath is not None:
+      my_print("Loading local file for station list at: " + sPath, nMessageVerbosity=VERBOSE)
+      # Open file
+      if os.path.exists(sPath) == False:
+         my_print("ERROR: Local station path does not exist: " +sPath,\
+                  nMessageVerbosity=NORMAL)
+         my_print("Please fix this error or try the online version of station file.")
+         my_print("Exiting")
+         exit(2)
+      else:
+         file_list = open(sPath, 'r')
+         station_list = csv.DictReader(file_list, fieldnames=COLUMN_TITLE_EN)
+   else:
+      try:
+         my_print("Loading online station list at: " + \
+                  dLang['station_list_URL'], nMessageVerbosity=VERBOSE)
+         # Recipe from http://bit.ly/2hc9XMB
+         webpage = urllib.request.urlopen(dLang['station_list_URL'])
+         station_list = csv.DictReader(io.TextIOWrapper(webpage), \
+                                       fieldnames=COLUMN_TITLE_EN)
 
-   try:
-      # Recipe from https://stackoverflow.com/questions/21351882/reading-data-from-a-csv-file-online-in-python-3
-      webpage = urllib.request.urlopen(sURLStation)
-#      datareader = csv.reader(io.TextIOWrapper(webpage))
-      datareader = csv.DictReader(io.TextIOWrapper(webpage))
-      print (type(datareader))
-   except urllib.error.URLError :
-         my_print ("WARNING: Online CSV list of stations not available", nMessageVerbosity=NORMAL)
+      except urllib.error.URLError :
+         my_print ("WARNING: Online CSV list of stations not available", \
+                   nMessageVerbosity=NORMAL)
          my_print ("Cannot reach:\n '" +\
-                   sURLStation + "'\n", nMessageVerbosity=NORMAL)
+                    dLang['station_list_URL']+ "'\n", nMessageVerbosity=NORMAL)
          my_print ("Using the local version instead. Station list may be not up to date.",\
                    nMessageVerbosity=NORMAL)
 
-         # TODO: load local CSV file
-   
+
+   # Fill the dictionnaries with the station list
+   # Skip the first 4 lines
+   for i in range(3):
+      next(station_list)
+   for row in station_list:
+      # EC internal station code
+      nStationCode = row["Station ID"]
+      dStationList[nStationCode] = row
+
+      # If the station correspond to an airport
+      sAirport = row["TC ID"]
+      if len(sAirport) == 3:
+         dStationAirport[sAirport] = row
+
+         
+def fetch_stations(lInput):
+   """
+   Fetch all the lines in the dictionnary containing all the stations and store them 
+   in another dictionnary.
+   """
+   print (lInput)
+
+   for sElement in lInput:
+      if len(sElement) == 3: # Airport code
+         print (dStationAirport[sElement])
+
+
+def set_language(sLang):
+   """
+   Set the different values specific to the language (URL, station list header, etc.)
+   """
+
+   if sLang == "en":
+      dLang['station_list_URL'] = STATION_LIST_EN
+      dLang['column_title'] = COLUMN_TITLE_EN
+   elif sLang == "fr":
+      dLang['station_list_URL'] = STATION_LIST_FR
+      dLang['column_title'] = COLUMN_TITLE_FR
    
 def get_canadian_weather_observations(tOptions):
    """
-   Download the observation files from Environment and Climate change Canada (ECCC) on your local computer.
+   Download the observation files from Environment and Climate change Canada (ECCC)
+   on your local computer.
    """
 
    # Check in the first place if we can contact ECCC web site
    check_eccc_climate_connexion()
 
+   # Set language
+   set_language(tOptions.Language)
+
    # Load the station list
-   load_station_list(tOptions.Language)
+   load_station_list(tOptions.LocalStationPath)
+
+   # Fetch the requested stations
+   fetch_stations(tOptions.Input)
    
 
 ############################################################
@@ -140,6 +237,9 @@ def get_command_line():
                        action="store", type=str, default=None)
    parser.add_argument("--output-directory", "-o", dest="OutputDirectory", \
                      help="Directory where the files will be written",\
+                     action="store", type=str, default=None)
+   parser.add_argument("--station-file", "-S", dest="LocalStationPath", \
+                     help="Use this local version located at PATH for the station list instead of the online version on the EC Climate web site.",\
                      action="store", type=str, default=None)   
    parser.add_argument("--dry-run", "-t", dest="DryRun", \
                      help="Execute the program, but do not download any file",\
