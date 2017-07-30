@@ -32,16 +32,18 @@ Manual
  
 In a general way, this application should be called in command line like this:  
 ```bash
-python get_canadian_weather_obervation.py [OPTIONS] INPUT
+python get_canadian_weather_obervation.py [OPTIONS] [PERIOD] INPUT
 ```
 <br />
 where:   
+* OPTIONS are described in the table below.
+* PERIOD is the period of requested observations: [--hourly&#124;--daily&#124;--monthly]
 * INPUT is one or many of these values:
  * [ECCC internal station ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
  * [two-letter province code](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm)
  * [three-letter IATA airport code](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y)
  * `all` for all available stations
-* OPTIONS are described in the table below.
+
 
 | Options        | Description   |
 | ------------- |-------------| 
