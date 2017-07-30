@@ -61,36 +61,54 @@ COLUMN_TITLE_EN=["Name","Province","Climate ID","Station ID","WMO ID","TC ID",\
                  "Latitude","Longitude","Elevation (m)","First Year","Last Year",\
                  "HLY First Year","HLY Last Year","DLY First Year","DLY Last Year",\
                  "MLY First Year","MLY Last Year"]
-station_list = None
-dStationAirport = {}
-dStationList = {}
-dProvTerrList = { "AB" : {}, \
-                  "BC" : {}, \
-                  "MB" : {}, \
-                  "NB" : {}, \
-                  "NL" : {}, \
-                  "NS" : {}, \
-                  "NT" : {}, \
-                  "NU" : {}, \
-                  "ON" : {}, \
-                  "PE" : {}, \
-                  "QC" : {}, \
-                  "SK" : {}, \
-                  "YT" : {}  }
-dProvFR = { "AB" : "ALBERTA", \
-            "BC" : "COLOMBIE-BRITANNIQUE", \
-            "MB" : "MANITOBA", \
-                  "NB" : {}, \
-                  "NL" : {}, \
-                  "NS" : {}, \
-                  "NT" : {}, \
-                  "NU" : {}, \
-                  "ON" : {}, \
-                  "PE" : {}, \
-                  "QC" : {}, \
-                  "SK" : {}, \
-                  "YT" : {}  }
 
+# Dictionnaries to contain the station ID of the list
+dStationList = {}
+dStationAirport = {}
+dProvTerrList = { "AB" : [], \
+                  "BC" : [], \
+                  "MB" : [], \
+                  "NB" : [], \
+                  "NL" : [], \
+                  "NS" : [], \
+                  "NT" : [], \
+                  "NU" : [], \
+                  "ON" : [], \
+                  "PE" : [], \
+                  "QC" : [], \
+                  "SK" : [], \
+                  "YT" : []  }
+
+# Province and territory string and code management
+lProvTerrCode = ["AB","BC","MB","NB","NL","NS","NT","NU", \
+                 "ON","PE","QC","SK","YT" ]
+dProvFR = { "ALBERTA" : "AB", \
+            "COLOMBIE-BRITANNIQUE" : "BC" , \
+            "MANITOBA" : "MB", \
+            "NOUVEAU-BRUNSWICK" : "NB", \
+            "TERRE-NEUVE" : "NL", \
+            "NOUVELLE-ECOSSE" : "NS", \
+            "TERRITOIRES DU NORD-OUEST" : "NT", \
+            "NUNAVUT" : "NU", \
+            "ONTARIO" : "ON", \
+            "ILE DU PRINCE-EDOUARD" : "PE", \
+            "QUEBEC" : "QC", \
+            "SASKATCHEWAN" : "SK", \
+            "YUKON" : "YT"  }
+dProvEN = { "ALBERTA" : "AB" , \
+            "BRITISH COLUMBIA" : "BC", \
+            "MANITOBA" : "MB", \
+            "NEW BRUNSWICK" : "NB", \
+            "NEWFOUNDLAND" : "NL", \
+            "NOVA SCOTIA" : "NS", \
+            "NORTHWEST TERRITORIES" : "NT", \
+            "NUNAVUT" : "NU", \
+            "ONTARIO" : "ON", \
+            "PRINCE EDWARD ISLAND" : "PE", \
+            "QUEBEC" : "QC", \
+            "SASKATCHEWAN" : "SK", \
+            "YUKON TERRITORY" : "YT"  }
+dProvCode = None # Will be set to EN or FR
                   
 
 def my_print(sMessage, nMessageVerbosity=NORMAL):
@@ -110,7 +128,7 @@ def check_eccc_climate_connexion():
    Check if we can connect the ECCC Climate web site. If not, there is point to continue.
    """
 
-   my_print("Check if ECCC Climate web site is available.", nMessageVerbosity=VERBOSE)
+   my_print("Checking if ECCC Climate web site is available...", nMessageVerbosity=VERBOSE)
 
    try:
       urllib.request.urlopen(ECCC_WEBSITE_URL)
@@ -121,13 +139,14 @@ def check_eccc_climate_connexion():
       my_print ("Exiting.", nMessageVerbosity=NORMAL)
       sys.exit(1)
 
-   my_print("ECCC Climate web and ftp sites reached! Continuing. ", nMessageVerbosity=VERBOSE)
+   my_print("ECCC Climate web site reached! Continuing. ", nMessageVerbosity=VERBOSE)
 
    
 def  load_station_list(sPath):
    """
    Download the latest file from the ECCC climate web site.
    """
+   global dStationList, dStationAirport, dProvTerrList
 
    # Check if a local path is given
    if sPath is not None:
@@ -162,7 +181,7 @@ def  load_station_list(sPath):
 
    # Fill the dictionnaries with the station list
    # Skip the first 4 lines
-   for i in range(3):
+   for i in range(4):
       next(station_list)
    for row in station_list:
       # EC internal station code
@@ -172,33 +191,71 @@ def  load_station_list(sPath):
       # If the station correspond to an airport
       sAirport = row["TC ID"]
       if len(sAirport) == 3:
-         dStationAirport[sAirport] = row
+         dStationAirport[sAirport] = nStationCode
 
-         
+      # Order by province/territory
+      sProvTerr = row["Province"]
+      dProvTerrList[dProvCode[sProvTerr]].append(nStationCode)
+
+      
 def fetch_stations(lInput):
    """
    Fetch all the lines in the dictionnary containing all the stations and store them 
    in another dictionnary.
+
+   Arguments:
+    lInput: list of all the srings given in the input.
+    return lStationRequested: list of all the station ID corresponding to the input.
    """
-   print (lInput)
+   lStationRequested = []
 
+   # If "all", or any lower/uppercase variant, load everything and exit
+   if "all" in lInput:
+      my_print("All stations requested", nMessageVerbosity=VERBOSE)
+      lStationRequested = dStationList.keys()
+      return lStationRequested
+      
+   # If not all stations requested, build the station list
    for sElement in lInput:
-      if len(sElement) == 3: # Airport code
-         print (dStationAirport[sElement])
-
-
+      if len(sElement) == 3: # Airport code         
+         if sElement in dStationAirport.keys():
+            my_print("Airport code added in list: " +sElement, nMessageVerbosity=VERBOSE)
+            lStationRequested.append(dStationAirport[sElement])
+         else:
+            my_print("Warning: requested airport code not in station list: '" + sElement +\
+                     "'\nIgnoring", nMessageVerbosity=NORMAL)
+      elif len(sElement) == 2:
+         if sElement in lProvTerrCode: # Province or territory
+            my_print("Station in province or territory added: " +sElement, \
+                     nMessageVerbosity=VERBOSE)
+            lStationRequested = lStationRequested + dProvTerrList[sElement]
+         else:
+            my_print("Warning: requested province or territory not in list: '" + sElement +\
+                     "'\nOptions are:", nMessageVerbosity=NORMAL)
+            my_print(lProvTerrCode, nMessageVerbosity=NORMAL)
+      elif sElement.isdigit(): # Station ID
+         my_print("Station code added: " +sElement, \
+                  nMessageVerbosity=VERBOSE)
+         lStationRequested.append(sElement)
+      else: # Argument did not fit any criteria
+            my_print("Warning: requested argument not valid: '" + sElement +\
+                     "'\nSkipping.", nMessageVerbosity=NORMAL)
+         
+   return lStationRequested
+         
 def set_language(sLang):
    """
    Set the different values specific to the language (URL, station list header, etc.)
    """
-
+   global dProvCode
+   
    if sLang == "en":
-      dLang['station_list_URL'] = STATION_LIST_EN
-      dLang['column_title'] = COLUMN_TITLE_EN
+      dLang['station_list_URL'] = STATION_LIST_EN      
+      dProvCode = dProvEN
    elif sLang == "fr":
       dLang['station_list_URL'] = STATION_LIST_FR
-      dLang['column_title'] = COLUMN_TITLE_FR
-   
+      dProvCode = dProvFR
+
 def get_canadian_weather_observations(tOptions):
    """
    Download the observation files from Environment and Climate change Canada (ECCC)
@@ -215,7 +272,15 @@ def get_canadian_weather_observations(tOptions):
    load_station_list(tOptions.LocalStationPath)
 
    # Fetch the requested stations
-   fetch_stations(tOptions.Input)
+   lStationList = fetch_stations(tOptions.Input)
+   if len(lStationList) == 0: # If nothing fits.
+      my_print ("No station found corresponding to arguments: ", \
+                nMessageVerbosity=NORMAL)
+      my_print (tOptions.Input, nMessageVerbosity=NORMAL)
+      return
+
+   # Check if the reqested dates are available for each station
+#`   (tOptions.RequestedDate, tOptions.StartDate, tOptions.EndDate)
    
 
 ############################################################
@@ -244,14 +309,15 @@ def get_command_line():
    parser.add_argument("--dry-run", "-t", dest="DryRun", \
                      help="Execute the program, but do not download any file",\
                        action="store_true", default=False)
-   parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), choices=["fr","en"], \
-                     help="Language in which the data will be downloaded (en = English, fr = French). Default is English.",\
+   parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), 
+                       choices=["fr","en"], \
+                       help="Language in which the data will be downloaded (en = English, fr = French). Default is English.",\
                        action="store", type=str, default="en")   
    parser.add_argument("--format", "-F", dest="Format", metavar=("[xml|csv]"), \
                        help="Download the files in 'csv' or 'xml' format. Default value is 'csv'.",\
                        action="store", type=str, default="xml")
    # Date stuff
-   parser.add_argument("--date", "-d", dest="DateRequested", metavar=("YYYY[-MM[-DD]]") ,\
+   parser.add_argument("--date", "-d", dest="RequestedDate", metavar=("YYYY[-MM[-DD]]") ,\
                        help="Get the observations for this specific date only.  --start-date and  --end-date are ignored if provided. Format is YYYY[-MM[-DD]]",\
                        action="store", type=str, default=None)
    parser.add_argument("--start-date", "-e", dest="StartDate", metavar=("YYYY[-MM[-DD]]"), \
@@ -295,6 +361,15 @@ def get_command_line():
       print ("Error: Directory '%s' provided in '--output-directory' does not exist or is not a directory. Please provide a valid output directory. Exiting." % (options.OutputDirectory))
       exit (3)
 
+   # Verify if at least one period of observation is requested.
+   if options.Hourly is False and \
+      options.Daily is False and \
+      options.Monthly is False:
+      print ("Error: no observation period indicated.")
+      print ("Please choose for one or more of these options:")
+      print ("--hourly --daily --monthly")
+      exit(4)
+      
 
    # If dates are provided, check if the file format is fine.
 #   if options.DateRequested is not None:
