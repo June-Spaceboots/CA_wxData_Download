@@ -53,9 +53,9 @@ where:
 | `-l` `--lang` [en&#124;fr]| Language in which the data will be downloaded (en = English, fr = French). Default is English.
 |`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
 |`-F` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
-|`-d` `--date` YYYY[-MM[-DD]]| Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided.
-|`-e` `--start-date` YYYY[-MM[-DD]]| Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.
-|`-f` `--end-date` YYYY[-MM[-DD]]| Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.
+|`-d` `--date` YYYY[-MM]| Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided.
+|`-e` `--start-date` YYYY[-MM]| Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.
+|`-f` `--end-date` YYYY[-MM]| Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.
 |`-H` `--hourly`| Get data values for observations taken on an hourly basis. (1 file per month)
 |`-D` `--daily`| Get data values for observations taken once in a 24-hour period. (1 file per year)
 |`-M` `--monthly`| Get averages for each month, derived from daily data values (1 file for the whole period)
