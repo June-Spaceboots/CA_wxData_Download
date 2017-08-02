@@ -121,7 +121,102 @@ def my_print(sMessage, nMessageVerbosity=NORMAL):
    elif nMessageVerbosity == VERBOSE and nGlobalVerbosity == VERBOSE:
       print (sMessage)
 
+def set_language(sLang):
+   """
+   Set the different values specific to the language (URL, station list header, etc.)
+   """
+   global dProvCode
+   
+   if sLang == "en":
+      dLang['station_list_URL'] = STATION_LIST_EN      
+      dProvCode = dProvEN
+   elif sLang == "fr":
+      dLang['station_list_URL'] = STATION_LIST_FR
+      dProvCode = dProvFR
 
+def check_input_dates(lDates):
+   """
+   Verify if the provided dates are in a valid format (YYYY or YYYY-MM).
+
+   INPUT
+   lDates: list of string of input dates: [tOptions.RequestedDate, tOptions.StartDate, tOptions.EndDate]
+
+   OUTPUT
+   lValidatedDates : list of strptime for input dates
+   """
+
+   # Variables initialisation
+   [sRequestedDate, sStartDate, sEndDate] = lDates
+   timeRequestedDate = None
+   timeStartDate = None
+   timeEndDate = None
+
+   # Specific date
+   if sRequestedDate is not None:
+      my_print("Checking --date format " + sRequestedDate, nMessageVerbosity=VERBOSE)
+      timeRequestedDate = check_date_format(sRequestedDate)
+      if sStartDate != None:
+         my_print("WARNING: --date is provided. Ignoring the value of --start-date: " + \
+                  sStartDate, nMessageVerbosity=NORMAL)
+         timeStartDate = None
+      if sEndDate != None:
+         my_print("WARNING: --date is provided. Ignoring the value of --end-date: " + \
+                  sEndDate, nMessageVerbosity=NORMAL)
+         timeEndDate = None
+      return [timeRequestedDate, timeStartDate, timeEndDate]
+
+   # Start/end date
+   if sStartDate != None:
+      my_print("Checking --start-date format: " + sStartDate, nMessageVerbosity=VERBOSE)
+      timeStartDate = check_date_format(sStartDate)
+   if sEndDate != None:
+      my_print("Checking --end-date format: " + sEndDate, nMessageVerbosity=VERBOSE)
+      timeEndDate = check_date_format(sEndDate)
+   if sStartDate != None: and sEndDate != None: 
+      if timeStartDate > timeEndDate:  # Check if start date is before end date
+         my_print("ERROR: Start date is after end date:\n " + sStartDate + " after " + sEndDate,
+                  nMessageVerbosity=NORMAL)
+         exit(8)
+      # Start date format: YYYY-MM / End date format: YYYY
+      elif len(sStartDate) > len(sEndDate):
+         #  datetime.datetime.strftime(t1, "%Y")
+
+   return [time_RequestedDate, time_StartDate, time_EndDate]
+
+def check_date_format(sDate):
+   """
+   Check if the provided string is a valid date of the format 'YYYY' or 'YYYY-MM'
+
+   If one value is not valid, the program displays an error message and exits.
+   """
+
+   if len(sDate) == 4: # YYYY format
+      try:
+         timeDate = datetime.datetime.strptime(sDate, '%Y')
+         my_print("Requested date is: " + sDate,  nMessageVerbosity=VERBOSE)
+      except ValueError:
+         my_print ("Requested date must be of format 'YYYY' or 'YYYY-MM'.", \
+                   nMessageVerbosity=NORMAL)
+         my_print("Provided value: '" + sDate + "'", \
+                  nMessageVerbosity=NORMAL)
+         exit(5)
+   elif len(sDate) == 7: # YYYY-MM format
+      try:
+         timeDate = datetime.datetime.strptime(sDate, '%Y-%m')
+         my_print("Requested date is: " + sDate,  nMessageVerbosity=VERBOSE)
+      except ValueError:
+         my_print ("Requested date must be of format 'YYYY' or 'YYYY-MM'.", \
+                   nMessageVerbosity=NORMAL)
+         my_print("Provided value: '" + sDate + "'",  nMessageVerbosity=NORMAL)
+         exit(6)
+   else: # Date format not allowed
+      my_print ("Requested date must be of format 'YYYY' or 'YYYY-MM'.", \
+                nMessageVerbosity=NORMAL)
+      my_print("Provided value: '" + sDate + "'",  nMessageVerbosity=NORMAL)
+      exit(7)
+
+   return timeDate
+   
 
 def check_eccc_climate_connexion():
    """
@@ -142,7 +237,7 @@ def check_eccc_climate_connexion():
    my_print("ECCC Climate web site reached! Continuing. ", nMessageVerbosity=VERBOSE)
 
    
-def  load_station_list(sPath):
+def load_station_list(sPath):
    """
    Download the latest file from the ECCC climate web site.
    """
@@ -198,7 +293,7 @@ def  load_station_list(sPath):
       dProvTerrList[dProvCode[sProvTerr]].append(nStationCode)
 
       
-def fetch_stations(lInput):
+def fetch_requested_stations(lInput):
    """
    Fetch all the lines in the dictionnary containing all the stations and store them 
    in another dictionnary.
@@ -242,19 +337,29 @@ def fetch_stations(lInput):
                      "'\nSkipping.", nMessageVerbosity=NORMAL)
          
    return lStationRequested
+
+def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
+   """
+   Check if the interval requested on command line are available for each station requested.
+
+   INPUT
+   lStationRequested: List of Station ID of requested stations.
+   dObsPeriod: Dictionnary linking the hourly/daily/monthly obs period request to a boolean.
+   lDateRequested: List of requested dates. In order:
+     1- Specific date
+     2- Start date
+     3- End date
+   """
+
+   for sStation in lStationRequested:
+      dStation = dStationList[sStation]
+      if dObsPeriod["monthly"]: # Check for monthly values
+         sFirstYear = dStation["HLY First Year"]
+         sLastYear = dStation["HLY Last Year"]
+         # ICI
          
-def set_language(sLang):
-   """
-   Set the different values specific to the language (URL, station list header, etc.)
-   """
-   global dProvCode
-   
-   if sLang == "en":
-      dLang['station_list_URL'] = STATION_LIST_EN      
-      dProvCode = dProvEN
-   elif sLang == "fr":
-      dLang['station_list_URL'] = STATION_LIST_FR
-      dProvCode = dProvFR
+#      ,"HLY Last Year","DLY First Year","DLY Last Year",\
+#                "MLY First Year","MLY Last Year"
 
 def get_canadian_weather_observations(tOptions):
    """
@@ -262,7 +367,12 @@ def get_canadian_weather_observations(tOptions):
    on your local computer.
    """
 
-   # Check in the first place if we can contact ECCC web site
+   # If dates are provided, check if the string format is fine.
+   lRequestedDate = check_input_dates\
+                    ([tOptions.RequestedDate, tOptions.StartDate, tOptions.EndDate])
+         
+   
+   # Check if we can contact ECCC web site
    check_eccc_climate_connexion()
 
    # Set language
@@ -272,7 +382,7 @@ def get_canadian_weather_observations(tOptions):
    load_station_list(tOptions.LocalStationPath)
 
    # Fetch the requested stations
-   lStationList = fetch_stations(tOptions.Input)
+   lStationList = fetch_requested_stations(tOptions.Input)
    if len(lStationList) == 0: # If nothing fits.
       my_print ("No station found corresponding to arguments: ", \
                 nMessageVerbosity=NORMAL)
@@ -280,7 +390,10 @@ def get_canadian_weather_observations(tOptions):
       return
 
    # Check if the reqested dates are available for each station
-#`   (tOptions.RequestedDate, tOptions.StartDate, tOptions.EndDate)
+   dObsPeriod = { "hourly"  : tOptions.Hourly,\
+                  "daily"   : tOptions.Daily, \
+                  "monthly" :tOptions.Monthly}
+   set_interval_date(lStationList, dObsPeriod, lRequestedDate)
    
 
 ############################################################
@@ -370,16 +483,6 @@ def get_command_line():
       print ("--hourly --daily --monthly")
       exit(4)
       
-
-   # If dates are provided, check if the file format is fine.
-#   if options.DateRequested is not None:
-#      sDate = options.DateRequested
-#      if len(sDate) == 4: # Only YYYY should be provided
-#         options.DateRequested = datetime.datetime.strptime(sDate, '%Y')
-#         
-#      print (options.DateRequested)
-
-
       
    # Set the global verbosity
    global nGlobalVerbosity
@@ -391,6 +494,8 @@ def get_command_line():
    my_print("Verbosity level is set to: " + str(nGlobalVerbosity), nMessageVerbosity=VERBOSE)
    my_print("Arguments in command line are:\n " + str(sys.argv), nMessageVerbosity=VERBOSE)
    
+
+            
    return options
 
 
