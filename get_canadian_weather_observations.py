@@ -110,7 +110,6 @@ dProvEN = { "ALBERTA" : "AB" , \
             "YUKON TERRITORY" : "YT"  }
 dProvCode = None # Will be set to EN or FR
                   
-
 def my_print(sMessage, nMessageVerbosity=NORMAL):
    """
    Use this method to write the message in the standart output 
@@ -327,7 +326,8 @@ def fetch_requested_stations(lInput):
    for sElement in lInput:
       if len(sElement) == 3: # Airport code         
          if sElement in dStationAirport.keys():
-            my_print("Airport code added in list: " +sElement, nMessageVerbosity=VERBOSE)
+            my_print("Airport code added in list: " +sElement + " (" + \
+                     dStationAirport[sElement] + ")", nMessageVerbosity=VERBOSE)
             lStationRequested.append(dStationAirport[sElement])
          else:
             my_print("Warning: requested airport code not in station list: '" + sElement +\
@@ -358,22 +358,77 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
    INPUT
    lStationRequested: List of Station ID of requested stations.
    dObsPeriod: Dictionnary linking the hourly/daily/monthly obs period request to a boolean.
-   lDateRequested: List of requested dates. In order:
+   lDateRequested: List of requested dates in strptime format. In order:
      1- Specific date
      2- Start date
      3- End date
-   """
 
+   OUTPUT
+   dStationStartEndDates: dictionnary with station ID as key. Each station is linked to a 
+   dictionnary with 3 keys: "monthly" "daily" "hourly"
+   "monthly" only needs a boolean, since one file covers the whole period. You download the file, or you don't.
+   "daily" and "hourly" indicates the start and end period to download the obersvation: [timeStart, timeEnd]
+   
+ 
+   """
+   dStationStartEndDates = {}
+   [timeDate, timeStartDate, timeEndDate] = lDateRequested
+   
+   
    for sStation in lStationRequested:
       dStation = dStationList[sStation]
-      if dObsPeriod["monthly"]: # Check for monthly values
-         sFirstYear = dStation["HLY First Year"]
-         sLastYear = dStation["HLY Last Year"]
-         # ICI
-         
-#      ,"HLY Last Year","DLY First Year","DLY Last Year",\
-#                "MLY First Year","MLY Last Year"
 
+      # Initialisation of the start/end date dictionnary
+      dStationStartEndDates[sStation] = { "monthly" : False , \
+                                          "daily" :  [None, None] , \
+                                          "hourly" :  [None, None] }
+                                          
+
+      
+      if dObsPeriod["monthly"]: # Check for monthly values
+         sFirstYear = dStation["MLY First Year"]
+         sLastYear = dStation["MLY Last Year"]
+
+         # Check if the station records monthly value (one file per station covers the whole period)
+         if len(sFirstYear) == 0: 
+            my_print("Station " + sStation + " does not have monthly value. Skipping.",
+                     nMessageVerbosity=NORMAL)
+            continue
+
+         # If no date provided, download the data
+         if timeDate == None and timeStartDate == None and timeEndDate == None:
+            my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
+            dStationStartEndDates[sStation]["monthly"] = True
+
+         timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
+         timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
+         
+         # If a specific date is required
+         if timeDate != None:
+            if timeDate < timeFirstYear: # Requested before the station starts recording
+               my_print("For montly values: requested year for station " + sStation + \
+                        " is before the station started to record values", nMessageVerbosity=NORMAL)
+               my_print("Requested year: " + timeDate.strftime('%Y'), \
+                        nMessageVerbosity=NORMAL)
+               my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
+                        nMessageVerbosity=NORMAL)
+               my_print("Skipping", nMessageVerbosity=NORMAL)
+               continue
+            elif timeDate > timeLastYear: # Requested after the station ends recording
+               my_print("For montly values: requested year for station " + sStation + \
+                        " is after the station started to record values", nMessageVerbosity=NORMAL)
+               my_print("Requested year: " + timeDate.strftime('%Y'), \
+                        nMessageVerbosity=NORMAL)
+               my_print("Last year for this station: " + timeLastYear.strftime('%Y'),\
+                        nMessageVerbosity=NORMAL)
+               my_print("Skipping", nMessageVerbosity=NORMAL)
+               continue
+            else:
+               my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
+               dStationStartEndDates[sStation]["monthly"] = True
+         
+            
+            
 def get_canadian_weather_observations(tOptions):
    """
    Download the observation files from Environment and Climate change Canada (ECCC)
@@ -408,12 +463,9 @@ def get_canadian_weather_observations(tOptions):
          row = dStationList[sStation]
          for sItem in row:
             my_print (sItem + ":" + row[sItem], nMessageVerbosity=NORMAL)
-
-#         my_print("Info for station: " + sStation, nMessageVerbosity=NORMAL)
- #        my_print(dStationList[sStation], nMessageVerbosity=NORMAL)
       return
 
-   # Check if the reqested dates are available for each station
+   # Check if the requested dates are available for each station
    dObsPeriod = { "hourly"  : tOptions.Hourly,\
                   "daily"   : tOptions.Daily, \
                   "monthly" :tOptions.Monthly}
