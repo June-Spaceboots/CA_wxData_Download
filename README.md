@@ -49,7 +49,7 @@ where:
 | ------------- |-------------| 
 | `-h`, `--help` | Show help message and exit      | 
 | `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded. Default value is where the script get_canadian_weather_observations.py is located.      | 
-| `-S` `--station-list`&nbsp;PATH|Use this local version located at PATH for the station list instead of the online version on the EC Climate web site.
+| `-S` `--station-list`&nbsp;PATH|Use this local version located at PATH for the station list instead of the online version on the EC Climate web site. Using local file can save a lot of time.
 | `-l` `--lang` [en&#124;fr]| Language in which the data will be downloaded (en = English, fr = French). Default is English.
 |`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
 |`-F` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
