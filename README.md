@@ -59,6 +59,7 @@ where:
 |`-H` `--hourly`| Get data values for observations taken on an hourly basis. (1 file per month)
 |`-D` `--daily`| Get data values for observations taken once in a 24-hour period. (1 file per year)
 |`-M` `--monthly`| Get averages for each month, derived from daily data values (1 file for the whole period)
+|`-I` `--info`| Get and print the information (lat, lon, code, start/end date, etc.) for the selected station(s) and exit.
 |`-v` `--verbose`  | Explain what is being done |
 |`-V` `--version`|Output version information and exit|
 
