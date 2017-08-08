@@ -165,23 +165,36 @@ def check_input_dates(lDates):
          timeEndDate = None
       return [timeRequestedDate, timeStartDate, timeEndDate]
 
-   # Start/end date
+   # Start/end date specified
    if sStartDate != None:
       my_print("Checking --start-date format: " + sStartDate, nMessageVerbosity=VERBOSE)
       timeStartDate = check_date_format(sStartDate)
    if sEndDate != None:
       my_print("Checking --end-date format: " + sEndDate, nMessageVerbosity=VERBOSE)
       timeEndDate = check_date_format(sEndDate)
-   if sStartDate != None: and sEndDate != None: 
+   if sStartDate != None and sEndDate != None: 
       if timeStartDate > timeEndDate:  # Check if start date is before end date
          my_print("ERROR: Start date is after end date:\n " + sStartDate + " after " + sEndDate,
                   nMessageVerbosity=NORMAL)
          exit(8)
       # Start date format: YYYY-MM / End date format: YYYY
       elif len(sStartDate) > len(sEndDate):
-         #  datetime.datetime.strftime(t1, "%Y")
+         my_print("Start date is in format 'YYYY-MM' while End date is 'YYYY': '"+ \
+                  sStartDate + "' vs '" + sEndDate + "'", nMessageVerbosity=NORMAL)
+         my_print("Changing End date to end in December ---> " + \
+                  sEndDate + "-12 ", nMessageVerbosity=NORMAL)
+         sEndDate = sEndDate + "-12"
+         timeEndDate = check_date_format(sEndDate)
+      # End date format: YYYY-MM / Start date format: YYYY
+      elif len(sEndDate) > len(sStartDate):
+         my_print("End date is in format 'YYYY-MM' while Start date is 'YYYY': '"+ \
+                  sEndDate + "' vs '" + sStartDate + "'", nMessageVerbosity=NORMAL)
+         my_print("Changing Start date to start in January ---> " + \
+                  sStartDate + "-01 ", nMessageVerbosity=NORMAL)
+         sStartDate = sStartDate + "-01"
+         timeStartDate = check_date_format(sStartDate)
 
-   return [time_RequestedDate, time_StartDate, time_EndDate]
+   return [timeRequestedDate, timeStartDate, timeEndDate]
 
 def check_date_format(sDate):
    """
@@ -388,6 +401,17 @@ def get_canadian_weather_observations(tOptions):
                 nMessageVerbosity=NORMAL)
       my_print (tOptions.Input, nMessageVerbosity=NORMAL)
       return
+   elif tOptions.Information: # print the lines of the station dictionnary and exits
+      for sStation in lStationList:
+         my_print("----", nMessageVerbosity=NORMAL)
+         my_print ("Station ID: " + sStation, nMessageVerbosity=NORMAL )
+         row = dStationList[sStation]
+         for sItem in row:
+            my_print (sItem + ":" + row[sItem], nMessageVerbosity=NORMAL)
+
+#         my_print("Info for station: " + sStation, nMessageVerbosity=NORMAL)
+ #        my_print(dStationList[sStation], nMessageVerbosity=NORMAL)
+      return
 
    # Check if the reqested dates are available for each station
    dObsPeriod = { "hourly"  : tOptions.Hourly,\
@@ -450,6 +474,9 @@ def get_command_line():
                      help="Get averages for each month, derived from daily data values (1 file for the whole period)",\
                      action="store_true", default=False)
    
+   parser.add_argument("--info", "-I", dest="Information", \
+                     help="Get and print the information (lat, lon, code, start/end date, etc.) for the selected station(s) and exit.",\
+                     action="store_true", default=False)
 
    parser.add_argument("--verbose", "-v", dest="Verbosity", \
                      help="Explain what is being done", action="store_true", default=False)
