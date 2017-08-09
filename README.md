@@ -84,4 +84,28 @@ Get all the hourly and daily values for all the British-Columbian stations for t
 ```
 <br />
 
-
+Get the information for the Bagotville station:
+```bash
+ python get_canadian_weather_observations.py --info YBG
+----
+Station ID: 5889
+Name:BAGOTVILLE A
+DLY Last Year:2017
+HLY Last Year:2017
+MLY First Year:1942
+Elevation (m):159.1
+TC ID:YBG
+Station ID:5889
+First Year:1942
+MLY Last Year:2014
+Longitude:-710000000
+Latitude:482000000
+Climate ID:7060400
+Province:QUEBEC
+Longitude (Decimal Degrees):-71
+Last Year:2017
+HLY First Year:1953
+DLY First Year:1942
+Latitude (Decimal Degrees):48.33
+WMO ID:71727
+```
