@@ -80,7 +80,7 @@ Get all the hourly values for all the Canadian stations for the year 2012 in csv
 
 Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989 in csv English format
 ```bash
- python get_canadian_weather_obervation.py --hourly --daily --after-date 1980-01 --before-date 1990-01 -o /home/miguel/download BC
+ python get_canadian_weather_obervation.py --hourly --daily --start-date 1980-01 --end-date 1990-01 -o /home/miguel/download BC
 ```
 <br />
 
