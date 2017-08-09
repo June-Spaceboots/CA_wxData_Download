@@ -19,7 +19,8 @@
 
 """
 Name:        get_canadian_weather_observations.py
-Description: Download the observation files from Environment and Climate change Canada (ECCC) on your local computer.
+Description: Download the observation files from Environment and 
+ Climate change Canada (ECCC) on your local computer.
 
 Notes: 
 
@@ -195,6 +196,7 @@ def check_input_dates(lDates):
 
    return [timeRequestedDate, timeStartDate, timeEndDate]
 
+
 def check_date_format(sDate):
    """
    Check if the provided string is a valid date of the format 'YYYY' or 'YYYY-MM'
@@ -272,6 +274,7 @@ def load_station_list(sPath):
       try:
          my_print("Loading online station list at: " + \
                   dLang['station_list_URL'], nMessageVerbosity=VERBOSE)
+         my_print("This may take a while...", nMessageVerbosity=VERBOSE)         
          # Recipe from http://bit.ly/2hc9XMB
          webpage = urllib.request.urlopen(dLang['station_list_URL'])
          station_list = csv.DictReader(io.TextIOWrapper(webpage), \
@@ -351,6 +354,37 @@ def fetch_requested_stations(lInput):
          
    return lStationRequested
 
+def check_date_interval(sStation, timeDate, timeFirstYear, timeLastYear, sPeriod=None):
+   """
+   When a specific date is given, check if it falls between the intervals. 
+   Return True if it is in the interval, False otherwise.
+   """
+
+   if timeDate < timeFirstYear: # Requested before the station starts recording
+      my_print("For " + sPeriod +" values: requested year for station " + sStation + \
+               " is before the station started to record values", nMessageVerbosity=NORMAL)
+      my_print("Requested year: " + timeDate.strftime('%Y'), \
+               nMessageVerbosity=NORMAL)
+      my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
+               nMessageVerbosity=NORMAL)
+      my_print("Skipping", nMessageVerbosity=NORMAL)
+      return False
+   elif timeDate > timeLastYear: # Requested after the station ends recording
+      my_print("For " +sPeriod +" values: requested year for station " + sStation + \
+               " is after the station started to record values", nMessageVerbosity=NORMAL)
+      my_print("Requested year: " + timeDate.strftime('%Y'), \
+               nMessageVerbosity=NORMAL)
+      my_print("Last year for this station: " + timeLastYear.strftime('%Y'),\
+               nMessageVerbosity=NORMAL)
+      my_print("Skipping", nMessageVerbosity=NORMAL)
+      return False
+   else:
+      my_print("Station " + sStation + ": getting " +sPeriod + " values ", \
+               nMessageVerbosity=VERBOSE)
+      return True
+
+
+   
 def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
    """
    INPUT
@@ -374,39 +408,21 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
                nMessageVerbosity=NORMAL)
       return False
 
+   timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
+   timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
+
    # If no date provided, download the data
    if timeDate == None and timeStartDate == None and timeEndDate == None :
       my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
       return True
-
-   timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
-   timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
          
    # If a specific date is required
    if timeDate != None:
-      if timeDate < timeFirstYear: # Requested before the station starts recording
-         my_print("For monthly values: requested year for station " + sStation + \
-                  " is before the station started to record values", nMessageVerbosity=NORMAL)
-         my_print("Requested year: " + timeDate.strftime('%Y'), \
-                  nMessageVerbosity=NORMAL)
-         my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
-                  nMessageVerbosity=NORMAL)
-         my_print("Skipping", nMessageVerbosity=NORMAL)
-         return False
-      elif timeDate > timeLastYear: # Requested after the station ends recording
-         my_print("For monthly values: requested year for station " + sStation + \
-                  " is after the station started to record values", nMessageVerbosity=NORMAL)
-         my_print("Requested year: " + timeDate.strftime('%Y'), \
-                  nMessageVerbosity=NORMAL)
-         my_print("Last year for this station: " + timeLastYear.strftime('%Y'),\
-                  nMessageVerbosity=NORMAL)
-         my_print("Skipping", nMessageVerbosity=NORMAL)
-         return False
-      else:
-         my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
-         return True
-
-      # If the start date is specified
+      bInterval = check_date_interval(sStation, timeDate, \
+                                      timeFirstYear, timeLastYear, sPeriod="monhly")
+      return bInterval
+   
+   # If the start date is specified
    elif timeStartDate != None:
       if timeStartDate > timeLastYear: # start date is after the last year of recording
          my_print("For monthly values: requested year(s) for station " + sStation + \
@@ -433,7 +449,7 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
          my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
          return True
 
-      # If only the end date is specified
+   # If only the end date is specified
    else:
       if timeEndDate < timeFirstYear: # Requested period is before observations started
          my_print("For monthly values: requested year for station " + sStation + \
@@ -448,7 +464,101 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
          my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
          return True
          
+def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
+   """
+   INPUT
+   sStation: Station ID for logging purpose
+   lDateRequested: List of requested dates in strptime format. In order:
+     1- Specific date
+     2- Start date
+     3- End date
+   sFirstYear: String in format YYYY for the first year of recording of the station
+   sEndYear: String in format YYYY for the last year of recording of the station
+   
+   OUTPUT
+   Return the interval to download [YYYY, YYYY]. Since there is only one file per year, only the
+   years are needed to identify the download period.
+   """
 
+   [timeDate, timeStartDate, timeEndDate] = lDateRequested
+   
+   # Check if the station records monthly value (one file per station covers the whole period)
+   if len(sFirstYear) == 0: 
+      my_print("Station " + sStation + " does not have daily value.\nSkipping.",
+               nMessageVerbosity=NORMAL)
+      return None
+
+   # If no date provided, download the data
+   if timeDate == None and timeStartDate == None and timeEndDate == None :
+      my_print("Station " + sStation + ": getting daily values  for the whole period: ["\
+               +sFirstYear +"," +sLastYear  +"]", nMessageVerbosity=VERBOSE)
+      return [sFirstYear, sLastYear]
+
+   timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
+   timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
+
+   # If a specific date is required
+   if timeDate != None:
+      bInterval = check_date_interval(sStation, timeDate, \
+                                      timeFirstYear, timeLastYear, sPeriod="daily")
+      if bInterval:
+         sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
+         return [sRequestedYear, sRequestedYear]
+      else:
+         return None
+
+   # If the start date is specified
+   elif timeStartDate != None:
+      if timeStartDate > timeLastYear: # start date is after the last year of recording
+         my_print("For daily values: requested year(s) for station " + sStation + \
+                  " is after the station started to record values", nMessageVerbosity=NORMAL)
+         my_print("Requested year: " + timeStartDate.strftime('%Y'), \
+                  nMessageVerbosity=NORMAL)
+         my_print("Last year for this station: " + timeLastYear.strftime('%Y'),\
+                  nMessageVerbosity=NORMAL)
+         my_print("Skipping", nMessageVerbosity=NORMAL)
+         return None
+      elif timeEndDate == None : # No ending date, covers the whole period after valid start date
+         sStartYearRequested = datetime.datetime.strftime(timeStartDate, "%Y")
+         my_print("Station " + sStation + ": getting daily values for period: [" +\
+                  sStartYearRequested + "," +sLastYear + "]" , nMessageVerbosity=VERBOSE)
+         return [sStartYearRequested, sLastYear]
+      elif timeEndDate < timeFirstYear: # Requested period is before observations started
+         my_print("For daily values: requested year for station " + sStation + \
+                  " is before the station started to record values", nMessageVerbosity=NORMAL)
+         my_print("Last year requested: " + timeEndDate.strftime('%Y'), \
+                  nMessageVerbosity=NORMAL)
+         my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
+                  nMessageVerbosity=NORMAL)
+         my_print("Skipping", nMessageVerbosity=NORMAL)
+         return None
+      else: # Period is covered
+         sStartYearRequested = datetime.datetime.strftime(timeStartDate, "%Y")
+         sEndYearRequested = datetime.datetime.strftime(timeEndDate, "%Y")
+         my_print("Station " + sStation + ": getting daily values for period: [" +\
+                  sStartYearRequested + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
+         return [sStartYearRequested, sEndYearRequested]
+
+   # If only the end date is specified
+   else:
+      if timeEndDate < timeFirstYear: # Requested period is before observations started
+         my_print("For daily values: requested year for station " + sStation + \
+                  " is before the station started to record values", nMessageVerbosity=NORMAL)
+         my_print("Last year requested: " + timeEndDate.strftime('%Y'), \
+                  nMessageVerbosity=NORMAL)
+         my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
+                  nMessageVerbosity=NORMAL)
+         my_print("Skipping", nMessageVerbosity=NORMAL)
+         return None
+      else: # Period is covered
+         sEndYearRequested = datetime.datetime.strftime(timeEndDate, "%Y")
+         my_print("Station " + sStation + ": getting daily values for period: [" +\
+                  sFirstYear + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
+         return [sFirstYear, sEndYearRequested]
+
+
+
+      
 def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
    """
    Check if the interval requested on command line are available for each station requested.
@@ -465,14 +575,14 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
    dStationStartEndDates: dictionnary with station ID as key. Each station is linked to a 
    dictionnary with 3 keys: "monthly" "daily" "hourly"
    "monthly" only needs a boolean, since one file covers the whole period. You download the file, or you don't.
-   "daily" and "hourly" indicates the start and end period to download the obersvation: [timeStart, timeEnd]
+   "daily" is a list of years [YYYY, YYYY]
+   "hourly" is a list of year and month [YYYY-MM, YYYY-MM]
+
    
  
    """
    dStationStartEndDates = {}
 
-   
-   
    for sStation in lStationRequested:
       dStation = dStationList[sStation]
 
@@ -490,7 +600,13 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
          dStationStartEndDates[sStation]["monthly"] = \
                                                       check_monthly(sStation, lDateRequested, sFirstYear, sLastYear)
 
+      if dObsPeriod["daily"]: # Check for daily values
+         sFirstYear = dStation["DLY First Year"]
+         sLastYear = dStation["DLY Last Year"]
 
+         dStationStartEndDates[sStation]["daily"] = \
+                                                      check_daily(sStation, lDateRequested, sFirstYear, sLastYear)
+         
             
 def get_canadian_weather_observations(tOptions):
    """
@@ -618,7 +734,8 @@ def get_command_line():
    # Verify if at least one period of observation is requested.
    if options.Hourly is False and \
       options.Daily is False and \
-      options.Monthly is False:
+      options.Monthly is False and \
+      options.Information is False:
       print ("Error: no observation period indicated.")
       print ("Please choose for one or more of these options:")
       print ("--hourly --daily --monthly")
