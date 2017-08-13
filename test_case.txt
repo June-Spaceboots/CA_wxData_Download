@@ -1,0 +1,51 @@
+###  Monthly  ####
+
+# --date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --date 2014
+
+# --date invalid
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --date 2016
+
+
+# --start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --start-date 2011
+
+# --start-date invalid
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --start-date 2016
+
+
+### Daily ###
+
+## --date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --date 2014
+
+## --date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --date 2020
+
+##--	start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --start-date 2014
+
+##--	start-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --start-date 2020
+
+### Hourly ###
+
+## --date validg
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --date 2014
+
+## --date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --date 2020
+
+##--	start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --start-date 2014
+
+##--	start-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --start-date 2020
+ge
+
+##--	end-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --end-date 2014
+
+##--	end-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --end-date 1900
+
