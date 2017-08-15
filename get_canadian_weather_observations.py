@@ -334,7 +334,7 @@ def fetch_requested_stations(lInput):
       
    # If not all stations requested, build the station list
    for sElement in lInput:
-      if len(sElement) == 3: # Airport code         
+      if len(sElement) == 3 and sElement.isalpha(): # Airport code         
          if sElement in dStationAirport.keys():
             my_print("Airport code added in list: " +sElement + " (" + \
                      dStationAirport[sElement] + ")", nMessageVerbosity=VERBOSE)
@@ -841,7 +841,7 @@ def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime):
 
    return lUrl
 
-def download_files(lUrlAndPath, bDryRun):
+def download_files(lUrlAndPath, bDryRun, bNoClobber):
    """
    INPUT:
    lUrlAndPath: a list of list containing two values: the URL to download 
@@ -875,10 +875,16 @@ def download_files(lUrlAndPath, bDryRun):
          my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
          my_print("and saving on local directory:\n\t" + sDirectory, \
                   nMessageVerbosity=VERBOSE)
-         fichier = open(sDirectory + "/" + sFilename,  "wb")
-         fichier.write(httpResponse.read())
-         fichier.close()
-      
+         sPath = sDirectory + "/" + sFilename
+         if bNoClobber and os.path.isfile(sPath):
+            my_print("--no-clobber option selected: File exists\n\t" + sFilename, nMessageVerbosity=NORMAL)
+            my_print("\tNo download", nMessageVerbosity=NORMAL)
+         else:
+            fichier = open(sPath,  "wb")
+            fichier.write(httpResponse.read())
+            fichier.close()
+
+            
             
    bar.finish()
 
@@ -954,7 +960,7 @@ def get_canadian_weather_observations(tOptions):
    lUrlPath = create_url(dStationStartEndDates, tOptions.OutputDirectory, \
                          tOptions.NoTree, tOptions.Language, tOptions.Format)
    
-   download_files(lUrlPath, tOptions.DryRun)
+   download_files(lUrlPath, tOptions.DryRun, tOptions.NoClobber)
 
 ############################################################
 # get_canadian_weather_observations in Command line
@@ -979,6 +985,9 @@ def get_command_line():
    parser.add_argument("--no-tree", "-n", dest="NoTree", \
                        help="Do not create directories, download all the files in the output directory.",\
                        action="store_true", default=False)
+   parser.add_argument("--no-clobber", "-N", dest="NoClobber", \
+                     help=" Do not overwrite an existing file",\
+                     action="store_true", default=False)
 
    parser.add_argument("--station-file", "-S", dest="LocalStationPath", \
                      help="Use this local version located at PATH for the station list instead of the online version on the EC Climate web site.",\
