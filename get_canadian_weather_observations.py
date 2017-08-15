@@ -35,13 +35,15 @@ import urllib
 import requests
 import io
 import csv
+import urllib.request
+import cgi
 
 # From dateutil package: https://pypi.python.org/pypi/python-dateutil
 from dateutil import rrule
 # From progress https://pypi.python.org/pypi/progress
 from progress.bar import Bar
 
-VERSION = "0.1"
+VERSION = "0.2"
 # Verbose level:
 ## 1 Normal mode
 ## 2 Full debug
@@ -723,7 +725,7 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
    for sStation in dStationDates.keys():
       sDirectoryStation = sDirectory + "/" +sStation
       # Check monthly
-      if dStationDates[sStation]["monthly"] != None:
+      if dStationDates[sStation]["monthly"] == True:
          if bNoTree:
             sDirectoryStationMonth = sDirectory
          else:
@@ -791,7 +793,7 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime):
    if sLang == "en":
       sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
              sFormat + "&stationID=" +sStation +"&Year="
-      sEndUrl = "&timeframe=2&submit=Download+Data"
+      sEndURL = "&timeframe=2&submit=Download+Data"
    elif sLang == "fr":
       sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
              sFormat + "&stationID=" +sStation +"&Year"
@@ -820,7 +822,7 @@ def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime):
    if sLang == "en":
       sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
              sFormat + "&stationID=" +sStation +"&Year="
-      sEndUrl = "&timeframe=1&submit=Download+Data"
+      sEndURL = "&timeframe=1&submit=Download+Data"
    elif sLang == "fr":
       sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
              sFormat + "&stationID=" +sStation +"&Year"
@@ -847,6 +849,10 @@ def download_files(lUrlAndPath, bDryRun):
    bDryRun: if set to True, do not download or create directory.
    """
 
+   # Create directories
+   lDirectories = [item[1] for item in lUrlAndPath]
+   create_directories(lDirectories, bDryRun)
+   
    # Set the progress bar
    rows, columns = os.popen('stty size', 'r').read().split()
    nWidth = int(columns) - 32
@@ -854,18 +860,48 @@ def download_files(lUrlAndPath, bDryRun):
 
    for lList in lUrlAndPath:
       [sURL, sDirectory] = lList
+      # Download the file
+      httpResponse = urllib.request.urlopen(sURL)
+      # Extract the provided filename
+      _,params = cgi.parse_header(httpResponse.headers.get('Content-Disposition', ''))
+      sFilename = params['filename']
+      if bDryRun:
+         my_print("--dry-run mode, file is not downloaded:\n\t" + sFilename,\
+                  nMessageVerbosity=NORMAL)
+         my_print("in local directory:\n\t" + sDirectory, \
+                  nMessageVerbosity=NORMAL)
+      else:
+         bar.next()
+         my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
+         my_print("and saving on local directory:\n\t" + sDirectory, \
+                  nMessageVerbosity=VERBOSE)
+         fichier = open(sDirectory + "/" + sFilename,  "wb")
+         fichier.write(httpResponse.read())
+         fichier.close()
       
-      # Check if the directory exists
-      if not os.path.isdir(sDirectory):
-         my_print("Directory does not exists \n\t" + sDirectory, nMessageVerbosity=NORMAL)
-         if bDryRun:
-            my_print("--dry-run mode: directory is not created", nMessageVerbosity=NORMAL)
-         else:
-            my_print("\tCreating directory", nMessageVerbosity=NORMAL)
-            os.makedirs(sDirectory)
-
-      bar.next()
+            
    bar.finish()
+
+      
+def create_directories(lDirectories, bDryRun):
+      """
+      Check if directories exists in the list lDirectories. If not, create it, unless we are in 
+      --dry-run mode.
+      """
+
+      lDirectoryCreated =[]
+      
+      for sDirectory in lDirectories:
+         # Check if the directory has not been created and does not exists
+         if sDirectory not in lDirectoryCreated and \
+            not os.path.isdir(sDirectory):
+            my_print("Directory does not exists \n\t" + sDirectory, nMessageVerbosity=NORMAL)
+            if bDryRun:
+               my_print("\t--dry-run mode: directory is not created", nMessageVerbosity=NORMAL)
+            else:
+               my_print("\tCreating directory", nMessageVerbosity=NORMAL)
+               os.makedirs(sDirectory)
+            lDirectoryCreated.append(sDirectory)
       
 def get_canadian_weather_observations(tOptions):
    """
