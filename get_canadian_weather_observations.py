@@ -361,23 +361,23 @@ def check_specific_date(sStation, timeDate, timeFirstYear, timeLastYear, sPeriod
    """
 
    if timeDate < timeFirstYear: # Requested before the station starts recording
-      my_print("Station " +sStation + ": For " + sPeriod +" values: requested year" + \
+      my_print("Station " +sStation + ":\n\t" + sPeriod +" values: requested year" + \
                " is before the station started to record values", nMessageVerbosity=NORMAL)
-      my_print("Requested year: " + timeDate.strftime('%Y'), \
+      my_print("\tRequested year: " + timeDate.strftime('%Y'), \
                nMessageVerbosity=NORMAL)
-      my_print("Starting year for this station: " + timeFirstYear.strftime('%Y') + ". Skipping",\
+      my_print("\tStarting year for this station: " + timeFirstYear.strftime('%Y') + ". Skipping",\
                nMessageVerbosity=NORMAL)
       return False
    elif timeDate > timeLastYear: # Requested after the station ends recording
-      my_print("Station " +sStation + ": For " + sPeriod +" values: requested year" + \
+      my_print("Station " +sStation + ":\n\t" + sPeriod +" values: requested year" + \
                " is after the station started to record values", nMessageVerbosity=NORMAL)
-      my_print("Requested year: " + timeDate.strftime('%Y'), \
+      my_print("\tRequested year: " + timeDate.strftime('%Y'), \
                nMessageVerbosity=NORMAL)
-      my_print("Last year for this station: " + timeLastYear.strftime('%Y') + ". Skipping",\
+      my_print("\tLast year for this station: " + timeLastYear.strftime('%Y') + ". Skipping",\
                nMessageVerbosity=NORMAL)
       return False
    else:
-      my_print("Station " + sStation + ": requested date for " +sPeriod + " data is valid. ", \
+      my_print("Station " + sStation + ":\n\trequested date for " +sPeriod + " data is valid. ", \
                nMessageVerbosity=VERBOSE)
       return True
 
@@ -390,33 +390,36 @@ def check_start_date(sStation, timeStartDate, timeEndDate, timeFirstYear,\
    """
    
    if timeStartDate > timeLastYear: # start date is after the last year of recording
-      my_print("Station " + sStation + ": for " +sPeriod +" values: requested year(s)" + \
+      my_print("Station " + sStation + ":\n\t" +sPeriod +" values: requested year(s)" + \
                " is after the station started to record values", nMessageVerbosity=NORMAL)
-      my_print("Requested year: " + timeStartDate.strftime('%Y-'), \
+      my_print("\tRequested year: " + timeStartDate.strftime('%Y-'), \
                nMessageVerbosity=NORMAL)
-      my_print("Last year for this station: " + timeLastYear.strftime('%Y') + ". Skipping",\
+      my_print("\tLast year for this station: " + timeLastYear.strftime('%Y') + ". Skipping",\
                nMessageVerbosity=NORMAL)
       return None
    elif timeEndDate == None : # No ending date, covers the whole period after valid start date
+      sStartYearRequested = datetime.datetime.strftime(timeStartDate, "%Y-%m")
+      my_print("Station " + sStation + ":", nMessageVerbosity=VERBOSE)
       if timeStartDate < timeFirstYear:
+         sFirstYear = datetime.datetime.strftime(timeFirstYear, "%Y-%m")
+         my_print("\tRequested start date before first year for this station. Changing " +\
+               sStartYearRequested +" with " +sFirstYear, nMessageVerbosity=VERBOSE)
          sStartYearRequested = datetime.datetime.strftime(timeFirstYear, "%Y-%m")
-      else:
-         sStartYearRequested = datetime.datetime.strftime(timeStartDate, "%Y-%m")
-      my_print("Station " + sStation + ": getting " +sPeriod + " values for period: [" +\
+      my_print("\tgetting " +sPeriod + " values for period: [" +\
                sStartYearRequested + "," + sLastYear + "]" , nMessageVerbosity=VERBOSE)
       return [sStartYearRequested, sLastYear]
    elif timeEndDate < timeFirstYear: # Requested period is before observations started
-      my_print("For " +sPeriod + " values: requested year for station " + sStation + \
+      my_print("Station " + sStation + ":\n\t" +sPeriod + " values: requested year" + \
                " is before the station started to record values", nMessageVerbosity=NORMAL)
-      my_print("Last year requested: " + timeEndDate.strftime('%Y'), \
+      my_print("\tLast year requested: " + timeEndDate.strftime('%Y'), \
                nMessageVerbosity=NORMAL)
-      my_print("Starting year for this station: " + timeFirstYear.strftime('%Y') + ". Skipping",\
+      my_print("\tStarting year for this station: " + timeFirstYear.strftime('%Y') + ". Skipping",\
                nMessageVerbosity=NORMAL)
       return None
    else: # Period is covered
       sStartYearRequested = datetime.datetime.strftime(timeStartDate, "%Y-%m")
       sEndYearRequested = datetime.datetime.strftime(timeEndDate, "%Y-%m")
-      my_print("Station " + sStation + ": getting " +sPeriod +" values for period: [" +\
+      my_print("Station " + sStation + ":\n\tgetting " +sPeriod +" values for period: [" +\
                sStartYearRequested + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
       return [sStartYearRequested, sEndYearRequested]
 
@@ -429,25 +432,25 @@ def check_end_date(sStation, timeStartDate, timeEndDate, timeFirstYear,\
    """
    
    if timeEndDate < timeFirstYear: # Requested period is before observations started
-      my_print("Station " + sStation + ": for " +sPeriod + " values: requested year(s)" + \
+      my_print("Station " + sStation + ":\n\t" +sPeriod + " values: requested year(s)" + \
                " is before the station started to record values", nMessageVerbosity=NORMAL)
-      my_print("Last year requested: " + timeEndDate.strftime('%Y'), \
+      my_print("\tLast year requested: " + timeEndDate.strftime('%Y'), \
                nMessageVerbosity=NORMAL)
-      my_print("Starting year for this station: " + timeFirstYear.strftime('%Y'),\
+      my_print("\tStarting year for this station: " + timeFirstYear.strftime('%Y'),\
                nMessageVerbosity=NORMAL)
-      my_print("Skipping", nMessageVerbosity=NORMAL)
+      my_print("\tSkipping", nMessageVerbosity=NORMAL)
       return None
    elif timeStartDate == None:
       if timeEndDate >  timeLastYear: # end-date is after last year
          sEndYearRequested = datetime.datetime.strftime(timeLastYear, "%Y-%m")
-         my_print("Station " + sStation + ": Last year after the valid station period. " + \
+         my_print("Station " + sStation + ":\n\tLast year after the valid station period. " + \
                      "Using the last year for station instead of requested date")
-         my_print("Station " + sStation + ": getting " +sPeriod +" values for period: [" +\
+         my_print("\tgetting " +sPeriod +" values for period: [" +\
                      sFirstYear + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
          return [sFirstYear, sEndYearRequested]
       else:
          sEndYearRequested = datetime.datetime.strftime(timeEndDate, "%Y-%m")
-         my_print("Station " + sStation + ": getting " +sPeriod +" values for period: [" +\
+         my_print("Station " + sStation + ":\n\tgetting " +sPeriod +" values for period: [" +\
                   sFirstYear + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
          return [sFirstYear, sEndYearRequested]
    
@@ -522,13 +525,13 @@ def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
    
    # Check if the station records daily value (one file per station covers the whole period)
    if len(sFirstYear) == 0: 
-      my_print("Station " + sStation + " does not have daily value.\nSkipping.",
+      my_print("Station " + sStation + " does not have daily value.\n\tSkipping.",
                nMessageVerbosity=NORMAL)
       return None
 
    # If no date provided, download the data for the whole period
    if timeDate == None and timeStartDate == None and timeEndDate == None :
-      my_print("Station " + sStation + ": getting daily values  for the whole period: ["\
+      my_print("\tgetting daily values for the whole period: ["\
                +sFirstYear +"," +sLastYear  +"]", nMessageVerbosity=VERBOSE)
       return [sFirstYear, sLastYear]
 
@@ -541,7 +544,7 @@ def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
                                       timeFirstYear, timeLastYear, sPeriod="daily")
       if bInterval :
          sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
-         my_print("Station " + sStation + ": getting daily values for period: [" +\
+         my_print("\tgetting daily values for period: [" +\
                    sRequestedYear + "," + sRequestedYear + "]" , nMessageVerbosity=VERBOSE)
          return bInterval
       else:
@@ -579,7 +582,7 @@ def check_hourly(sStation, lDateRequested, sFirstYear, sLastYear):
 
    # Check if the station records hourly value (one file per station covers the whole period)
    if len(sFirstYear) == 0: 
-      my_print("Station " + sStation + " does not have hourly value.\nSkipping.",
+      my_print("Station " + sStation + " does not have hourly value.\n\tSkipping.",
                nMessageVerbosity=NORMAL)
       return None
    # Since there is no information for starting/ending month, assumed January for start and
@@ -590,7 +593,7 @@ def check_hourly(sStation, lDateRequested, sFirstYear, sLastYear):
       
    # If no date provided, download the data for the whole period
    if timeDate == None and timeStartDate == None and timeEndDate == None :
-      my_print("Station " + sStation + ": getting hourly values  for the whole period: ["\
+      my_print("\tgetting hourly values for the whole period: ["\
                +sFirstYear +"," +sLastYear  +"]", nMessageVerbosity=VERBOSE)
       return [sFirstYear, sLastYear]
 
@@ -603,7 +606,7 @@ def check_hourly(sStation, lDateRequested, sFirstYear, sLastYear):
                                       timeFirstYear, timeLastYear, sPeriod="hourly")
       if bInterval:
          sRequestedYearMonth = datetime.datetime.strftime(timeDate, "%Y-%m")
-         my_print("Station " + sStation + ": getting hourly values for period: [" +\
+         my_print("\tgetting hourly values for period: [" +\
                    sRequestedYearMonth + "," + sRequestedYearMonth + "]" ,\
                   nMessageVerbosity=VERBOSE)
          return [sRequestedYearMonth, sRequestedYearMonth]
@@ -679,6 +682,8 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
       if dStationStartEndDates[sStation]["monthly"] == False and \
          dStationStartEndDates[sStation]["daily"] == None and \
          dStationStartEndDates[sStation]["hourly"] == None:
+         my_print("\tStation does not have any valid date period.",\
+                  nMessageVerbosity=VERBOSE)
          del dStationStartEndDates[sStation]
          
    return dStationStartEndDates
