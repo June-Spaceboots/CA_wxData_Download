@@ -36,6 +36,11 @@ import requests
 import io
 import csv
 
+# From dateutil package: https://pypi.python.org/pypi/python-dateutil
+from dateutil import rrule
+# From progress https://pypi.python.org/pypi/progress
+from progress.bar import Bar
+
 VERSION = "0.1"
 # Verbose level:
 ## 1 Normal mode
@@ -475,7 +480,7 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
    if len(sFirstYear) == 0: 
       my_print("Station " + sStation + " does not have monthly value. Skipping.",
                nMessageVerbosity=NORMAL)
-      return False
+      return None
 
    timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
    timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
@@ -503,7 +508,7 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
    if lInterval != None:
       return True
    else:
-      return False
+      return None
       
 def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
    """
@@ -546,7 +551,7 @@ def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
          sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
          my_print("\tgetting daily values for period: [" +\
                    sRequestedYear + "," + sRequestedYear + "]" , nMessageVerbosity=VERBOSE)
-         return bInterval
+         lInterval = [sRequestedYear, sRequestedYear]
       else:
          return None
 
@@ -687,7 +692,181 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
          del dStationStartEndDates[sStation]
          
    return dStationStartEndDates
-            
+
+def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
+   """
+   INPUT
+   dStationDates: dictionnary containing the station number as the key, and a dictionnary as the value.
+     The dictionnary contains the start/end dates for monthly/daily/hourly request.
+   sDirectory: string for the local path where the files should be saved. In case it is not given, the path where the file
+     is executed is chosen. 
+   sLang: English or French
+   sFormat: CSV or XML
+
+   OUTPUT
+   lUrlPath : a list of lists. The contained lists are [URL, localpath] for every file to download.
+   """
+
+   my_print("Creating the path for the files to download", nMessageVerbosity=VERBOSE)
+   
+   # If output directory is not given, use the default
+   if sDirectory == None:
+      sDirectory = os.path.dirname(os.path.realpath(__file__))
+
+   # Check if the directory can be written by the user
+   if not os.access(sDirectory, os.W_OK):
+      my_print("ERROR: you do not have permission to write on the output directory:\n\t" +sDirectory +\
+               "\nPlease change the permission or change the output directory", nMessageVerbosity=NORMAL)
+      return
+
+   lUrlPath = []
+   for sStation in dStationDates.keys():
+      sDirectoryStation = sDirectory + "/" +sStation
+      # Check monthly
+      if dStationDates[sStation]["monthly"] != None:
+         if bNoTree:
+            sDirectoryStationMonth = sDirectory
+         else:
+            sDirectoryStationMonth = sDirectoryStation + "/monthly"            
+         sMonthlyURL = get_monthly_url(sStation, sLang, sFormat)
+         lUrlPath.append([sMonthlyURL,sDirectoryStationMonth])
+
+      # Check daily
+      if dStationDates[sStation]["daily"] != None:
+         if bNoTree:
+            sDirectoryStationDay = sDirectory
+         else:
+            sDirectoryStationDay = sDirectoryStation + "/daily"
+         lStartEnd = dStationDates[sStation]["daily"]
+         lDailyURL = get_daily_url(sStation, sLang, sFormat, lStartEnd)
+         for sDailyURL in lDailyURL:           
+            lUrlPath.append([sDailyURL,sDirectoryStationDay])
+
+      # Check hourly
+      if dStationDates[sStation]["hourly"] != None:
+         if bNoTree:
+            sDirectoryStationHour = sDirectory
+         else:
+            sDirectoryStationHour = sDirectoryStation + "/hourly"
+         lStartEnd = dStationDates[sStation]["hourly"]
+         lHourlyURL = get_hourly_url(sStation, sLang, sFormat, lStartEnd)
+         for sHourlyURL in lHourlyURL:           
+            lUrlPath.append([sHourlyURL,sDirectoryStationHour])
+
+   my_print("Number of files to download: " + str(len(lUrlPath)), nMessageVerbosity=VERBOSE)
+   return lUrlPath
+
+def  get_monthly_url(sStation, sLang, sFormat):
+   """
+   INPUT
+   sStation: station ID
+   sLang: language in which to dowload the data
+   sFormat: CSV or XML:
+
+   OUTPUT
+   sURL: URL to download the monthly data
+   """
+
+   if sLang == "en":
+      sURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&timeframe=3&submit=Download+Data"
+   elif sLang == "fr":
+      sURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&timeframe=3&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+
+   return sURL
+
+def  get_daily_url(sStation, sLang, sFormat, lStartEndTime):
+   """
+   INPUT
+   sStation: station ID
+   sLang: language in which to dowload the data
+   sFormat: CSV or XML:
+   lStartEndTime: list containing the string for start and end for the period
+
+   OUTPUT
+   lURL: URLs to download the daily data for the period
+   """
+
+   if sLang == "en":
+      sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&Year="
+      sEndUrl = "&timeframe=2&submit=Download+Data"
+   elif sLang == "fr":
+      sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&Year"
+      sEndURL = "&timeframe=2&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+
+   lUrl = []
+   [sStart, sEnd] = lStartEndTime
+   for nYear in range(int(sStart[0:4]),int(sEnd[0:4])):
+      sURL = sStartURL + str(nYear) + sEndURL
+      lUrl.append(sURL)
+
+   return lUrl
+
+def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime):
+   """
+   INPUT
+   sStation: station ID
+   sLang: language in which to dowload the data
+   sFormat: CSV or XML:
+   lStartEndTime: list containing the string for start and end for the period
+
+   OUTPUT
+   lURL: URLs to download the hourly data for the period
+   """
+
+   if sLang == "en":
+      sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&Year="
+      sEndUrl = "&timeframe=1&submit=Download+Data"
+   elif sLang == "fr":
+      sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
+             sFormat + "&stationID=" +sStation +"&Year"
+      sEndURL = "&timeframe=1&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+
+   lUrl = []
+   [sStart, sEnd] = lStartEndTime
+   timeStart = datetime.datetime.strptime(sStart, "%Y-%m")
+   timeEnd = datetime.datetime.strptime(sEnd, "%Y-%m")
+   
+   for time1 in rrule.rrule(rrule.MONTHLY, dtstart=timeStart, until=timeEnd):
+      sYear = datetime.datetime.strftime(time1, "%Y")
+      sMonth = datetime.datetime.strftime(time1, "%m")
+      sURL = sStartURL + sYear + "&Month=" +sMonth + sEndURL
+      lUrl.append(sURL)
+
+   return lUrl
+
+def download_files(lUrlAndPath, bDryRun):
+   """
+   INPUT:
+   lUrlAndPath: a list of list containing two values: the URL to download 
+    and the path where the file should be copied on the local computer.
+   bDryRun: if set to True, do not download or create directory.
+   """
+
+   # Set the progress bar
+   rows, columns = os.popen('stty size', 'r').read().split()
+   nWidth = int(columns) - 32
+   bar = Bar('Downloading', max=len(lUrlAndPath), width=int(nWidth))
+
+   for lList in lUrlAndPath:
+      [sURL, sDirectory] = lList
+      
+      # Check if the directory exists
+      if not os.path.isdir(sDirectory):
+         my_print("Directory does not exists \n\t" + sDirectory, nMessageVerbosity=NORMAL)
+         if bDryRun:
+            my_print("--dry-run mode: directory is not created", nMessageVerbosity=NORMAL)
+         else:
+            my_print("\tCreating directory", nMessageVerbosity=NORMAL)
+            os.makedirs(sDirectory)
+
+      bar.next()
+   bar.finish()
+      
 def get_canadian_weather_observations(tOptions):
    """
    Download the observation files from Environment and Climate change Canada (ECCC)
@@ -730,12 +909,16 @@ def get_canadian_weather_observations(tOptions):
    dStationStartEndDates = set_interval_date(lStationList, dObsPeriod, lRequestedDate)
 
    if len(dStationStartEndDates.keys()) == 0: # If nothing fits.
-      my_print ("No station found corresponding to date arguments. Please check the input stations or the date arguments.", \
+      my_print ("No station found corresponding to date arguments. " + \
+                "Please check the input stations or the date arguments.", \
                 nMessageVerbosity=NORMAL)
       return
 
+   # Create the URL for all the files requested
+   lUrlPath = create_url(dStationStartEndDates, tOptions.OutputDirectory, \
+                         tOptions.NoTree, tOptions.Language, tOptions.Format)
    
-   
+   download_files(lUrlPath, tOptions.DryRun)
 
 ############################################################
 # get_canadian_weather_observations in Command line
@@ -755,8 +938,12 @@ def get_command_line():
                      help="Station(s) for which the observations should be downloaded",\
                        action="store", type=str, default=None)
    parser.add_argument("--output-directory", "-o", dest="OutputDirectory", \
-                     help="Directory where the files will be written",\
+                     help="Directory where the files will be downloaded, in their corresponding sub-directory or not (see --no-tree option). Default value is where the script get_canadian_weather_observations.py is located.",\
                      action="store", type=str, default=None)
+   parser.add_argument("--no-tree", "-n", dest="NoTree", \
+                       help="Do not create directories, download all the files in the output directory.",\
+                       action="store_true", default=False)
+
    parser.add_argument("--station-file", "-S", dest="LocalStationPath", \
                      help="Use this local version located at PATH for the station list instead of the online version on the EC Climate web site.",\
                      action="store", type=str, default=None)   

@@ -14,7 +14,9 @@ ___
 Requirements
 ------------
 
-* [Python3] (https://www.python.org/downloads/)
+* [python3] (https://www.python.org/downloads/)
+* [python3-dateutil] (https://pypi.python.org/pypi/python-dateutil)
+* [python3-progress] (https://pypi.python.org/pypi/progress)
 
 ___
 
