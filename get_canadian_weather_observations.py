@@ -30,13 +30,15 @@ Date: July 25th 2017
 
 import sys
 import os
+import glob
 import datetime
 import urllib
-import requests
 import io
 import csv
 import urllib.request
 import cgi
+from multiprocessing import Pool
+
 
 # From dateutil package: https://pypi.python.org/pypi/python-dateutil
 from dateutil import rrule
@@ -695,7 +697,7 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
          
    return dStationStartEndDates
 
-def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
+def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat, bNoClobber):
    """
    INPUT
    dStationDates: dictionnary containing the station number as the key, and a dictionnary as the value.
@@ -729,9 +731,15 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
          if bNoTree:
             sDirectoryStationMonth = sDirectory
          else:
-            sDirectoryStationMonth = sDirectoryStation + "/monthly"            
-         sMonthlyURL = get_monthly_url(sStation, sLang, sFormat)
-         lUrlPath.append([sMonthlyURL,sDirectoryStationMonth])
+            sDirectoryStationMonth = sDirectoryStation + "/monthly"
+
+         sPathWildCard = sDirectoryStationMonth + "/" + sLang + "*-monthly-??????-??????." + sFormat
+         if bNoClobber and glob.glob(sPathWildCard) :
+            my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
+                     nMessageVerbosity=NORMAL)
+         else:
+            sMonthlyURL = get_monthly_url(sStation, sLang, sFormat)
+            lUrlPath.append([sMonthlyURL,sDirectoryStationMonth])
 
       # Check daily
       if dStationDates[sStation]["daily"] != None:
@@ -739,8 +747,10 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
             sDirectoryStationDay = sDirectory
          else:
             sDirectoryStationDay = sDirectoryStation + "/daily"
+
          lStartEnd = dStationDates[sStation]["daily"]
-         lDailyURL = get_daily_url(sStation, sLang, sFormat, lStartEnd)
+         lDailyURL = get_daily_url(sStation, sLang, sFormat, lStartEnd, \
+                                   sDirectoryStationDay, bNoClobber)
          for sDailyURL in lDailyURL:           
             lUrlPath.append([sDailyURL,sDirectoryStationDay])
 
@@ -751,11 +761,13 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat):
          else:
             sDirectoryStationHour = sDirectoryStation + "/hourly"
          lStartEnd = dStationDates[sStation]["hourly"]
-         lHourlyURL = get_hourly_url(sStation, sLang, sFormat, lStartEnd)
+         lHourlyURL = get_hourly_url(sStation, sLang, sFormat, lStartEnd, \
+                                     sDirectoryStationHour, bNoClobber)
          for sHourlyURL in lHourlyURL:           
             lUrlPath.append([sHourlyURL,sDirectoryStationHour])
 
-   my_print("Number of files to download: " + str(len(lUrlPath)), nMessageVerbosity=VERBOSE)
+   my_print("Number of files to download: " + str(len(lUrlPath)), \
+            nMessageVerbosity=VERBOSE)
    return lUrlPath
 
 def  get_monthly_url(sStation, sLang, sFormat):
@@ -778,7 +790,7 @@ def  get_monthly_url(sStation, sLang, sFormat):
 
    return sURL
 
-def  get_daily_url(sStation, sLang, sFormat, lStartEndTime):
+def  get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
    """
    INPUT
    sStation: station ID
@@ -790,6 +802,7 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime):
    lURL: URLs to download the daily data for the period
    """
 
+   
    if sLang == "en":
       sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
              sFormat + "&stationID=" +sStation +"&Year="
@@ -801,13 +814,20 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime):
 
    lUrl = []
    [sStart, sEnd] = lStartEndTime
-   for nYear in range(int(sStart[0:4]),int(sEnd[0:4])):
-      sURL = sStartURL + str(nYear) + sEndURL
-      lUrl.append(sURL)
+   for nYear in range(int(sStart[0:4]),int(sEnd[0:4])+1):
+      sYear = str(nYear)
+      sPathWildCard = sDirectory + "/" + sLang + "*-daily-0101" + sYear +\
+                      "-1231" + sYear + "." + sFormat
+      if bNoClobber and glob.glob(sPathWildCard) :
+         my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
+                  nMessageVerbosity=NORMAL)
+      else:
+         sURL = sStartURL + sYear + sEndURL
+         lUrl.append(sURL)
 
    return lUrl
 
-def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime):
+def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
    """
    INPUT
    sStation: station ID
@@ -836,12 +856,19 @@ def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime):
    for time1 in rrule.rrule(rrule.MONTHLY, dtstart=timeStart, until=timeEnd):
       sYear = datetime.datetime.strftime(time1, "%Y")
       sMonth = datetime.datetime.strftime(time1, "%m")
-      sURL = sStartURL + sYear + "&Month=" +sMonth + sEndURL
-      lUrl.append(sURL)
+
+      sPathWildCard = sDirectory + "/" + sLang + "*-hourly-" + sMonth + "??" +sYear +\
+                      "-" + sMonth + "??" +sYear + "." + sFormat
+      if bNoClobber and glob.glob(sPathWildCard) :
+         my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
+                  nMessageVerbosity=NORMAL)
+      else:
+         sURL = sStartURL + sYear + "&Month=" +sMonth + sEndURL
+         lUrl.append(sURL)
 
    return lUrl
 
-def download_files(lUrlAndPath, bDryRun, bNoClobber):
+def download_files(lUrlAndPath, bDryRun):
    """
    INPUT:
    lUrlAndPath: a list of list containing two values: the URL to download 
@@ -865,24 +892,14 @@ def download_files(lUrlAndPath, bDryRun, bNoClobber):
       # Extract the provided filename
       _,params = cgi.parse_header(httpResponse.headers.get('Content-Disposition', ''))
       sFilename = params['filename']
-      if bDryRun:
-         my_print("--dry-run mode, file is not downloaded:\n\t" + sFilename,\
-                  nMessageVerbosity=NORMAL)
-         my_print("in local directory:\n\t" + sDirectory, \
-                  nMessageVerbosity=NORMAL)
-      else:
-         bar.next()
-         my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
-         my_print("and saving on local directory:\n\t" + sDirectory, \
-                  nMessageVerbosity=VERBOSE)
-         sPath = sDirectory + "/" + sFilename
-         if bNoClobber and os.path.isfile(sPath):
-            my_print("--no-clobber option selected: File exists\n\t" + sFilename, nMessageVerbosity=NORMAL)
-            my_print("\tNo download", nMessageVerbosity=NORMAL)
-         else:
-            fichier = open(sPath,  "wb")
-            fichier.write(httpResponse.read())
-            fichier.close()
+      bar.next()
+      my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
+      my_print("and saving on local directory:\n\t" + sDirectory, \
+               nMessageVerbosity=VERBOSE)
+      sPath = sDirectory + "/" + sFilename
+      fichier = open(sPath,  "wb")
+      fichier.write(httpResponse.read())
+      fichier.close()
 
             
             
@@ -958,9 +975,9 @@ def get_canadian_weather_observations(tOptions):
 
    # Create the URL for all the files requested
    lUrlPath = create_url(dStationStartEndDates, tOptions.OutputDirectory, \
-                         tOptions.NoTree, tOptions.Language, tOptions.Format)
+                         tOptions.NoTree, tOptions.Language, tOptions.Format, tOptions.NoClobber)
    
-   download_files(lUrlPath, tOptions.DryRun, tOptions.NoClobber)
+   download_files(lUrlPath, tOptions.DryRun)
 
 ############################################################
 # get_canadian_weather_observations in Command line
