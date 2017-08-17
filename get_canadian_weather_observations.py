@@ -887,20 +887,23 @@ def download_files(lUrlAndPath, bDryRun):
 
    for lList in lUrlAndPath:
       [sURL, sDirectory] = lList
-      # Download the file
-      httpResponse = urllib.request.urlopen(sURL)
-      # Extract the provided filename
-      _,params = cgi.parse_header(httpResponse.headers.get('Content-Disposition', ''))
-      sFilename = params['filename']
-      bar.next()
-      my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
-      my_print("and saving on local directory:\n\t" + sDirectory, \
-               nMessageVerbosity=VERBOSE)
-      sPath = sDirectory + "/" + sFilename
-      fichier = open(sPath,  "wb")
-      fichier.write(httpResponse.read())
-      fichier.close()
-
+      if not bDryRun:
+         # Download the file
+         httpResponse = urllib.request.urlopen(sURL)
+         # Extract the provided filename
+         _,params = cgi.parse_header(httpResponse.headers.get('Content-Disposition', ''))
+         sFilename = params['filename']
+         bar.next()
+         my_print("Downloading file:\n\t" + sFilename, nMessageVerbosity=VERBOSE)
+         my_print("and saving on local directory:\n\t" + sDirectory, \
+                  nMessageVerbosity=VERBOSE)
+         sPath = sDirectory + "/" + sFilename
+         fichier = open(sPath,  "wb")
+         fichier.write(httpResponse.read())
+         fichier.close()
+      else:
+         my_print("--dry-run mode: file not downloaded:\n\t" + sURL, \
+                  nMessageVerbosity=NORMAL)
             
             
    bar.finish()
