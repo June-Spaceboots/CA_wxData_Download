@@ -61,9 +61,7 @@ dLang = {}
 ECCC_WEBSITE_URL = "http://climate.weather.gc.ca/"
 ECCC_FTP_URL = "ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/"
 STATION_LIST_EN = ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
-#FR_STATION_LIST=ECCC_FTP_URL + "R%E9pertoire%20des%20stations%20FR.csv"
-# Forced to use bitly because of encoding problem with 'Répertoire' "
-STATION_LIST_FR = "http://bit.ly/2uXbN9u" 
+STATION_LIST_FR = ECCC_FTP_URL + "Répertoire%20des%20stations%20FR.csv"
 
 # CSV file station list
 COLUMN_TITLE_EN=["Name","Province","Climate ID","Station ID","WMO ID","TC ID",\
