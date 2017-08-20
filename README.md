@@ -4,9 +4,9 @@ Get Canadian Weather Observations
 Introduction
 ------------
 
-The `get_canadian_weather_obervation.py` is a python3 script used to download the [observation files from Environment and Climate change Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (ECCC) on your local computer.
+`get_canadian_weather_obervation.py` is a python3 script used to download the [observation files from Environment and Climate change Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (ECCC) to your local computer.
 
-This script is based on the information provided on the [ECCC Climate web site README](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). More information about the data format can be found on the [Digital Archive of Canadian Climatological Data Technical Documentation](ftp://ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). While this software is distributed under the GLP Version 3 licence, the downloaded data is under to the [License Agreement for Use of Environment and Climate Change Canada Data](http://climate.weather.gc.ca/prods_servs/attachment1_e.html).
+This script is based on the information provided on the [ECCC Climate web site README](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). More information about the data format can be found on the [Digital Archive of Canadian Climatological Data Technical Documentation](ftp://ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). While this software is distributed under the GPL Version 3 license, the downloaded data is under the [License Agreement for Use of Environment and Climate Change Canada Data](http://climate.weather.gc.ca/prods_servs/attachment1_e.html).
 
 This software works under GNU/Linux, Windows and Mac OS X.
 ___
@@ -14,30 +14,30 @@ ___
 Requirements
 ------------
 
-* [python3] (https://www.python.org/downloads/)
-* [python3-dateutil] (https://pypi.python.org/pypi/python-dateutil)
-* [python3-progress] (https://pypi.python.org/pypi/progress)
+* [python3](https://www.python.org/downloads/)
+* [python3-dateutil](https://pypi.python.org/pypi/python-dateutil)
+* [python3-progress](https://pypi.python.org/pypi/progress)
 
 ___
 
-Download 
+Download
 --------
-The more recent package can be downloaded here:  
+The latest package can be downloaded here:
 http://????.ca/climat/get_canadian_weather_obervation.py
 
-git version can be accessed here:  
+The git version can be accessed here:
  git clone https://framagit.org/MiguelTremblay/get_canadian_weather_observations.git
 
 
 Manual
 --------
- 
-In a general way, this application should be called in command line like this:  
+
+In a general way, this application should be called in command line like this:
 ```bash
 python get_canadian_weather_obervation.py [OPTIONS] [PERIOD] INPUT
 ```
 <br />
-where:   
+where:
 * OPTIONS are described in the table below.
 * PERIOD is the period of requested observations: [--hourly&#124;--daily&#124;--monthly]
 * INPUT is one or many of these values:
@@ -47,42 +47,42 @@ where:
  * `all` for all available stations
 
 
-| Options        | Description   |
-| ------------- |-------------| 
-| `-h`, `--help` | Show help message and exit      | 
-| `-o` `--output-directory`&nbsp;DIRECTORY   |Directory where the files will be downloaded, in their corresponding sub-directory or not (see `--no-tree` option). Default value is where the script get_canadian_weather_observations.py is located.      | 
-| `-n` `--no-tree`|Do not create directories, download all the files in the output directory.| 
-| `-N` `--no-clobber`|Do not overwrite an existing file.| 
-| `-S` `--station-list`&nbsp;PATH|Use this local version located at PATH for the station list instead of the online version on the EC Climate web site. Using local file can save a lot of time.
-| `-l` `--lang` [en&#124;fr]| Language in which the data will be downloaded (en = English, fr = French). Default is English.
-|`-t`  `--dry-run`     |   Execute the program, but do not download the files    | 
-|`-F` `--format`&nbsp;[csv&#124;xml]| Download the files in CSV or XML format. Default value is CSV.
-|`-d` `--date` YYYY[-MM]| Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided. If no date is provided, download the date for the full period.
-|`-e` `--start-date` YYYY[-MM]| Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.
-|`-f` `--end-date` YYYY[-MM]| Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.
-|`-H` `--hourly`| Get data values for observations taken on an hourly basis. (1 file per month)
-|`-D` `--daily`| Get data values for observations taken once in a 24-hour period. (1 file per year)
-|`-M` `--monthly`| Get averages for each month, derived from daily data values (1 file for the whole period)
-|`-I` `--info`| Get and print the information (lat, lon, code, start/end date, etc.) for the selected station(s) and exit.
-|`-v` `--verbose`  | Explain what is being done |
-|`-V` `--version`|Output version information and exit|
+| Options                                  | Description |
+| -------                                  | ------------|
+| `-h`, `--help`                           | Show help message and exit.|
+| `-o` `--output-directory`&nbsp;DIRECTORY | Directory where the files will be downloaded, in their corresponding sub-directory or not (see `--no-tree` option). Default value is where the script get_canadian_weather_observations.py is located.|
+| `-n` `--no-tree`                         | Do not create directories, download all the files in the output directory.|
+| `-N` `--no-clobber`                      | Do not overwrite an existing file.|
+| `-S` `--station-list`&nbsp;PATH          | Use this local version located at PATH for the station list instead of the online version on the EC Climate web site. Using local file can save a lot of time.|
+| `-l` `--lang` [en&#124;fr]               | Language in which the data will be downloaded (en = English, fr = French). Default is English.|
+|`-t`  `--dry-run`                         | Execute the program, but do not download the files.|
+|`-F` `--format`&nbsp;[csv&#124;xml]       | Download the files in CSV or XML format. Default value is CSV.|
+|`-d` `--date` YYYY[-MM]                   | Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided. If no date is provided, download the date for the full period.|
+|`-e` `--start-date` YYYY[-MM]             | Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.|
+|`-f` `--end-date` YYYY[-MM]               | Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.|
+|`-H` `--hourly`                           | Get data values for observations taken on an hourly basis (1 file per month).|
+|`-D` `--daily`                            | Get data values for observations taken once in a 24-hour period (1 file per year).|
+|`-M` `--monthly`                          | Get averages for each month, derived from daily data values (1 file for the whole period).|
+|`-I` `--info`                             | Get and print the information (lat, lon, code, start/end date, etc.) for the selected station(s) and exit.|
+|`-v` `--verbose`                          | Explain what is being done.|
+|`-V` `--version`                          | Output version information and exit.|
 
 Usage
 -----
 
-Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML French format (note date required, since the all the historical monthly averages are contained in one file)
+Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML French format (no date required, as all the historical monthly averages are contained in one file):
 ```bash
  python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml -l fr YBG
 ```
 <br />
 
-Get all the hourly values for all the Canadian stations for the year 2012 in csv English format
+Get all the hourly values for all the Canadian stations for the year 2012 in CSV English format:
 ```bash
  python get_canadian_weather_obervation.py --hourly -o /home/miguel/download --date 2012 all
 ```
 <br />
 
-Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989 in csv English format
+Get all the hourly and daily values for all the British-Columbian stations for the decade 1980-1989 in CSV English format:
 ```bash
  python get_canadian_weather_obervation.py --hourly --daily --start-date 1980-01 --end-date 1990-01 -o /home/miguel/download BC
 ```
@@ -113,3 +113,4 @@ DLY First Year:1942
 Latitude (Decimal Degrees):48.33
 WMO ID:71727
 ```
+
