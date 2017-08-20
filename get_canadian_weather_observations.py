@@ -63,6 +63,11 @@ ECCC_FTP_URL = "ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_
 STATION_LIST_EN = ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
 STATION_LIST_FR = ECCC_FTP_URL + "Répertoire%20des%20stations%20FR.csv"
 
+ECCC_WEBSITE_URL_EN = ECCC_WEBSITE_URL +\
+           "climate_data/bulk_data_e.html?format={format}&stationID={station}&timeframe={timeframe}&Year={year}&Month{month}&submit=Download+Data"
+ECCC_WEBSITE_URL_FR = ECCC_WEBSITE_URL +\
+           "climate_data/bulk_data_f.html?format={format}&stationID={station}&timeframe={timeframe}&Year={year}&Month={month}&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+
 # CSV file station list
 COLUMN_TITLE_EN=["Name","Province","Climate ID","Station ID","WMO ID","TC ID",\
                  "Latitude (Decimal Degrees)","Longitude (Decimal Degrees)",\
@@ -779,12 +784,13 @@ def  get_monthly_url(sStation, sLang, sFormat):
    sURL: URL to download the monthly data
    """
 
-   if sLang == "en":
-      sURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&timeframe=3&submit=Download+Data"
+   
+   if sLang == "en": # value of 'year' and 'month" are dummy value. It has to be set, but any value will do
+      sURL = ECCC_WEBSITE_URL_EN.format(station=sStation, format=sFormat, \
+                                        timeframe="3", year="2000", month="01")
    elif sLang == "fr":
-      sURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&timeframe=3&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+      sURL = ECCC_WEBSITE_URL_FR.format(station=sStation, format=sFormat, \
+                                        timeframe="3", year="2000", month="01")
 
    return sURL
 
@@ -802,13 +808,9 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobb
 
    
    if sLang == "en":
-      sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&Year="
-      sEndURL = "&timeframe=2&submit=Download+Data"
+      sStartURL = ECCC_WEBSITE_URL_EN
    elif sLang == "fr":
-      sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&Year"
-      sEndURL = "&timeframe=2&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+      sStartURL = ECCC_WEBSITE_URL_FR
 
    lUrl = []
    [sStart, sEnd] = lStartEndTime
@@ -819,8 +821,9 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobb
       if bNoClobber and glob.glob(sPathWildCard) :
          my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
                   nMessageVerbosity=NORMAL)
-      else:
-         sURL = sStartURL + sYear + sEndURL
+      else: # value of 'month' can be set to anything
+         sURL  = sStartURL.format(station=sStation, format=sFormat, \
+                                  timeframe="2", year=sYear, month="01")
          lUrl.append(sURL)
 
    return lUrl
@@ -838,13 +841,9 @@ def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClob
    """
 
    if sLang == "en":
-      sStartURL = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&Year="
-      sEndURL = "&timeframe=1&submit=Download+Data"
+      sStartURL =  ECCC_WEBSITE_URL_EN
    elif sLang == "fr":
-      sStartURL = "http://climat.meteo.gc.ca/climate_data/bulk_data_f.html?format=" +\
-             sFormat + "&stationID=" +sStation +"&Year"
-      sEndURL = "&timeframe=1&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
+      sStartURL = ECCC_WEBSITE_URL_FR
 
    lUrl = []
    [sStart, sEnd] = lStartEndTime
@@ -861,7 +860,8 @@ def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClob
          my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
                   nMessageVerbosity=NORMAL)
       else:
-         sURL = sStartURL + sYear + "&Month=" +sMonth + sEndURL
+         sURL = sStartURL.format(station=sStation, format=sFormat, \
+                                 timeframe="1", year=sYear, month=sMonth)
          lUrl.append(sURL)
 
    return lUrl
@@ -1019,7 +1019,7 @@ def get_command_line():
                        action="store", type=str, default="en")   
    parser.add_argument("--format", "-F", dest="Format", metavar=("[xml|csv]"), \
                        help="Download the files in 'csv' or 'xml' format. Default value is 'csv'.",\
-                       action="store", type=str, default="xml")
+                       action="store", type=str, default="csv")
    # Date stuff
    parser.add_argument("--date", "-d", dest="RequestedDate", metavar=("YYYY[-MM[-DD]]") ,\
                        help="Get the observations for this specific date only.  --start-date and  --end-date are ignored if provided. Format is YYYY[-MM[-DD]]",\
