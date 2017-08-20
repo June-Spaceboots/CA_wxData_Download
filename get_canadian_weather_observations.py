@@ -45,7 +45,7 @@ from dateutil import rrule
 # From progress https://pypi.python.org/pypi/progress
 from progress.bar import Bar
 
-VERSION = "0.3"
+VERSION = "0.4"
 # Verbose level:
 ## 1 Normal mode
 ## 2 Full debug
