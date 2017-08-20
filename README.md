@@ -53,7 +53,7 @@ where:
 | `-o` `--output-directory`&nbsp;DIRECTORY | Directory where the files will be downloaded, in their corresponding sub-directory or not (see `--no-tree` option). Default value is where the script get_canadian_weather_observations.py is located.|
 | `-n` `--no-tree`                         | Do not create directories, download all the files in the output directory.|
 | `-N` `--no-clobber`                      | Do not overwrite an existing file.|
-| `-S` `--station-list`&nbsp;PATH          | Use this local version located at PATH for the station list instead of the online version on the EC Climate web site. Using local file can save a lot of time.|
+| `-S` `--station-list`&nbsp;PATH          | You can download the station list file (in [English](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or [French](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)) on your local drive and use this file locate at PATH, instead of downloading the online version on the EC Climate web site. Using local file can save a lot of time. If you use this file, you have to set the corresponding language by using the `--lang` option.|
 | `-l` `--lang` [en&#124;fr]               | Language in which the data will be downloaded (en = English, fr = French). Default is English.|
 |`-t`  `--dry-run`                         | Execute the program, but do not download the files.|
 |`-F` `--format`&nbsp;[csv&#124;xml]       | Download the files in CSV or XML format. Default value is CSV.|
