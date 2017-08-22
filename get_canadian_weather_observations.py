@@ -45,7 +45,7 @@ from dateutil import rrule
 # From progress https://pypi.python.org/pypi/progress
 from progress.bar import Bar
 
-VERSION = "0.4"
+VERSION = "0.5"
 # Verbose level:
 ## 1 Normal mode
 ## 2 Full debug
@@ -313,7 +313,9 @@ def load_station_list(sPath):
       # If the station correspond to an airport
       sAirport = row["TC ID"]
       if len(sAirport) == 3:
-         dStationAirport[sAirport] = nStationCode
+         if sAirport not in dStationAirport.keys():
+            dStationAirport[sAirport] = []
+         dStationAirport[sAirport].append(nStationCode)
 
       # Order by province/territory
       sProvTerr = row["Province"]
@@ -341,9 +343,10 @@ def fetch_requested_stations(lInput):
    for sElement in lInput:
       if len(sElement) == 3 and sElement.isalpha(): # Airport code         
          if sElement in dStationAirport.keys():
-            my_print("Airport code added in list: " +sElement + " (" + \
-                     dStationAirport[sElement] + ")", nMessageVerbosity=VERBOSE)
-            lStationRequested.append(dStationAirport[sElement])
+            my_print("Airport code added in list: " +sElement, nMessageVerbosity=VERBOSE)
+            my_print("Corresponding station(s): " + \
+                    str(dStationAirport[sElement]) , nMessageVerbosity=VERBOSE)
+            lStationRequested = lStationRequested + dStationAirport[sElement]
          else:
             my_print("Warning: requested airport code not in station list: '" + sElement +\
                      "'\nIgnoring", nMessageVerbosity=NORMAL)
@@ -662,7 +665,7 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
    dStationStartEndDates = {}
 
    for sStation in lStationRequested:
-      dStation = dStationList[sStation]
+      dStation = dStationList[sStation]      
 
       # Initialisation of the start/end date dictionnary
       dStationStartEndDates[sStation] = { "monthly" : False , \
