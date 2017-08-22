@@ -490,7 +490,7 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
       return None
 
    timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
-   timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
+   timeLastYear = datetime.datetime.strptime(sLastYear +'-12', '%Y-%m')
 
    # If no date provided, download the data
    if timeDate == None and timeStartDate == None and timeEndDate == None :
@@ -548,7 +548,7 @@ def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
       return [sFirstYear, sLastYear]
 
    timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
-   timeLastYear = datetime.datetime.strptime(sLastYear, '%Y')
+   timeLastYear = datetime.datetime.strptime(sLastYear + "-12", '%Y-%m')
 
    # If a specific date is required
    if timeDate != None:
