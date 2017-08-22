@@ -22,11 +22,11 @@ ___
 
 Download
 --------
-The latest package can be downloaded here:
+The latest package can be downloaded here:<br>
 http://????.ca/climat/get_canadian_weather_obervation.py
 
-The git version can be accessed here:
- git clone https://framagit.org/MiguelTremblay/get_canadian_weather_observations.git
+The git version can be accessed here:<br>
+ ```git clone https://framagit.org/MiguelTremblay/get_canadian_weather_observations.git```
 
 
 Manual
@@ -43,7 +43,7 @@ where:
 * INPUT is one or many of these values:
  * [ECCC internal station ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
  * [two-letter province code](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm)
- * [three-letter IATA airport code](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y)
+ * [three-letter IATA airport code](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y) (when there is more than one station corresponding to an airport code, all the stations are appended to the list)
  * `all` for all available stations
 
 
