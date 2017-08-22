@@ -64,7 +64,7 @@ STATION_LIST_EN = ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
 STATION_LIST_FR = ECCC_FTP_URL + "Répertoire%20des%20stations%20FR.csv"
 
 ECCC_WEBSITE_URL_EN = ECCC_WEBSITE_URL +\
-           "climate_data/bulk_data_e.html?format={format}&stationID={station}&timeframe={timeframe}&Year={year}&Month{month}&submit=Download+Data"
+           "climate_data/bulk_data_e.html?format={format}&stationID={station}&timeframe={timeframe}&Year={year}&Month={month}&submit=Download+Data"
 ECCC_WEBSITE_URL_FR = ECCC_WEBSITE_URL +\
            "climate_data/bulk_data_f.html?format={format}&stationID={station}&timeframe={timeframe}&Year={year}&Month={month}&submit=++T%C3%A9l%C3%A9charger+%0D%0Ades+donn%C3%A9es"
 
