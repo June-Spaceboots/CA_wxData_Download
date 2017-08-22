@@ -468,8 +468,9 @@ def check_end_date(sStation, timeStartDate, timeEndDate, timeFirstYear,\
          my_print("Station " + sStation + ":\n\tgetting " +sPeriod +" values for period: [" +\
                   sFirstYear + "," + sEndYearRequested + "]" , nMessageVerbosity=VERBOSE)
          return [sFirstYear, sEndYearRequested]
-   
-def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
+
+
+def check_period(sStation, lDateRequested, sFirstYear, sLastYear, sPeriod):
    """
    INPUT
    sStation: Station ID for logging purpose
@@ -479,125 +480,17 @@ def check_monthly(sStation, lDateRequested, sFirstYear, sLastYear):
      3- End date
    sFirstYear: String in format YYYY for the first year of recording of the station
    sEndYear: String in format YYYY for the last year of recording of the station
-   
-   OUTPUT
-   Return True if the requested year is valid, False otherwise.
-   """
-   
-   [timeDate, timeStartDate, timeEndDate] = lDateRequested
-   
-   # Check if the station records monthly value (one file per station covers the whole period)
-   if len(sFirstYear) == 0: 
-      my_print("Station " + sStation + " does not have monthly value. Skipping.",
-               nMessageVerbosity=NORMAL)
-      return None
-
-   timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
-   timeLastYear = datetime.datetime.strptime(sLastYear +'-12', '%Y-%m')
-
-   # If no date provided, download the data
-   if timeDate == None and timeStartDate == None and timeEndDate == None :
-      my_print("Station " + sStation + ": getting monthly values ", nMessageVerbosity=VERBOSE)
-      return True
-         
-   # If a specific date is required
-   if timeDate != None:
-      bInterval = check_specific_date(sStation, timeDate, \
-                                      timeFirstYear, timeLastYear, sPeriod="monthly")
-      return bInterval
-   # If the start date is specified
-   elif timeStartDate != None:
-      lInterval = check_start_date(sStation, timeStartDate, timeEndDate, \
-                                   timeFirstYear, timeLastYear, sLastYear, sPeriod="monthly")
-      
-   # If only the end date is specified
-   else:
-      lInterval = check_end_date(sStation, timeStartDate, timeEndDate, \
-                                   timeFirstYear, timeLastYear, sFirstYear, sPeriod="monthly")
-
-   if lInterval != None:
-      return True
-   else:
-      return None
-      
-def check_daily(sStation, lDateRequested, sFirstYear, sLastYear):
-   """
-   INPUT
-   sStation: Station ID for logging purpose
-   lDateRequested: List of requested dates in strptime format. In order:
-     1- Specific date
-     2- Start date
-     3- End date
-   sFirstYear: String in format YYYY for the first year of recording of the station
-   sEndYear: String in format YYYY for the last year of recording of the station
-   
-   OUTPUT
-   Return the interval to download [YYYY, YYYY]. Since there is only one file per year, only the
-   years are needed to identify the download period.
-   """
-
-   [timeDate, timeStartDate, timeEndDate] = lDateRequested
-   
-   # Check if the station records daily value (one file per station covers the whole period)
-   if len(sFirstYear) == 0: 
-      my_print("Station " + sStation + " does not have daily value.\n\tSkipping.",
-               nMessageVerbosity=NORMAL)
-      return None
-
-   # If no date provided, download the data for the whole period
-   if timeDate == None and timeStartDate == None and timeEndDate == None :
-      my_print("\tgetting daily values for the whole period: ["\
-               +sFirstYear +"," +sLastYear  +"]", nMessageVerbosity=VERBOSE)
-      return [sFirstYear, sLastYear]
-
-   timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y')
-   timeLastYear = datetime.datetime.strptime(sLastYear + "-12", '%Y-%m')
-
-   # If a specific date is required
-   if timeDate != None:
-      bInterval = check_specific_date(sStation, timeDate, \
-                                      timeFirstYear, timeLastYear, sPeriod="daily")
-      if bInterval :
-         sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
-         my_print("\tgetting daily values for period: [" +\
-                   sRequestedYear + "," + sRequestedYear + "]" , nMessageVerbosity=VERBOSE)
-         lInterval = [sRequestedYear, sRequestedYear]
-      else:
-         return None
-
-   # If the start date is specified
-   elif timeStartDate != None:
-      lInterval = check_start_date(sStation, timeStartDate, timeEndDate, \
-                                   timeFirstYear, timeLastYear, sLastYear, sPeriod="daily")
-   
-   # If only the end date is specified
-   else:
-      lInterval = check_end_date(sStation, timeStartDate, timeEndDate, \
-                                 timeFirstYear, timeLastYear, sFirstYear, sPeriod="daily")
-
-   return lInterval
-
-def check_hourly(sStation, lDateRequested, sFirstYear, sLastYear):
-   """
-   INPUT
-   sStation: Station ID for logging purpose
-   lDateRequested: List of requested dates in strptime format. In order:
-     1- Specific date
-     2- Start date
-     3- End date
-   sFirstYear: String in format YYYY for the first year  of recording of the station
-   sEndYear: String in format YYYY for the last year of recording of the station
+   sPeriod: String for the period: monthly/daily/hourly
    
    OUTPUT
    Return the interval to download [YYYY-MM, YYYY-MM]. Since there is only one file per month, 
    only the months are needed to identify the download period.
    """
-
    [timeDate, timeStartDate, timeEndDate] = lDateRequested
-
-   # Check if the station records hourly value (one file per station covers the whole period)
+   
+   # Check if the station records monthly value (one file per station covers the whole period)
    if len(sFirstYear) == 0: 
-      my_print("Station " + sStation + " does not have hourly value.\n\tSkipping.",
+      my_print("Station " + sStation + " does not have " +sPeriod +" value. Skipping.",
                nMessageVerbosity=NORMAL)
       return None
    # Since there is no information for starting/ending month, assumed January for start and
@@ -605,40 +498,42 @@ def check_hourly(sStation, lDateRequested, sFirstYear, sLastYear):
    else:
       sFirstYear = sFirstYear + "-01"
       sLastYear = sLastYear + "-12"
-      
-   # If no date provided, download the data for the whole period
+
+   # If no date provided, download the data
    if timeDate == None and timeStartDate == None and timeEndDate == None :
-      my_print("\tgetting hourly values for the whole period: ["\
+      my_print("\tgetting " +sPeriod +" values for the whole period: ["\
                +sFirstYear +"," +sLastYear  +"]", nMessageVerbosity=VERBOSE)
       return [sFirstYear, sLastYear]
 
+         
    timeFirstYear = datetime.datetime.strptime(sFirstYear, '%Y-%m')
    timeLastYear = datetime.datetime.strptime(sLastYear, '%Y-%m')
 
    # If a specific date is required
    if timeDate != None:
       bInterval = check_specific_date(sStation, timeDate, \
-                                      timeFirstYear, timeLastYear, sPeriod="hourly")
-      if bInterval:
-         sRequestedYearMonth = datetime.datetime.strftime(timeDate, "%Y-%m")
-         my_print("\tgetting hourly values for period: [" +\
-                   sRequestedYearMonth + "," + sRequestedYearMonth + "]" ,\
-                  nMessageVerbosity=VERBOSE)
-         return [sRequestedYearMonth, sRequestedYearMonth]
+                                      timeFirstYear, timeLastYear, sPeriod=sPeriod)
+      if bInterval :
+         sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
+         my_print("\tgetting " +sPeriod  +" values for period: [" +\
+                  sRequestedYear + "," + sRequestedYear + "]" , nMessageVerbosity=VERBOSE)
+         lInterval = [sRequestedYear, sRequestedYear]
       else:
          return None
-
    # If the start date is specified
    elif timeStartDate != None:
       lInterval = check_start_date(sStation, timeStartDate, timeEndDate, \
-                                 timeFirstYear, timeLastYear, sLastYear, sPeriod="hourly")
-
+                                   timeFirstYear, timeLastYear, sLastYear, sPeriod=sPeriod)
+      
    # If only the end date is specified
    else:
       lInterval = check_end_date(sStation, timeStartDate, timeEndDate, \
-                                 timeFirstYear, timeLastYear, sFirstYear, sPeriod="hourly")
+                                   timeFirstYear, timeLastYear, sFirstYear, sPeriod=sPeriod)
+
 
    return lInterval
+
+
   
 def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
    """
@@ -677,27 +572,27 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
          sLastYear = dStation["MLY Last Year"]
 
          dStationStartEndDates[sStation]["monthly"] = \
-                                                      check_monthly(sStation, lDateRequested, sFirstYear, sLastYear)
+                                                    check_period(sStation, lDateRequested, sFirstYear, sLastYear, "monthly")
 
       if dObsPeriod["daily"]: # Check for daily values
          sFirstYear = dStation["DLY First Year"]
          sLastYear = dStation["DLY Last Year"]
 
          dStationStartEndDates[sStation]["daily"] = \
-                                                      check_daily(sStation, lDateRequested, sFirstYear, sLastYear)
+                                                  check_period(sStation, lDateRequested, sFirstYear, sLastYear, "daily")
          
       if dObsPeriod["hourly"]: # Check for hourly values
          sFirstYear = dStation["HLY First Year"]
          sLastYear = dStation["HLY Last Year"]
 
          dStationStartEndDates[sStation]["hourly"] = \
-                                                      check_hourly(sStation, lDateRequested, sFirstYear, sLastYear)
+                                                   check_period(sStation, lDateRequested, sFirstYear, sLastYear, "hourly")
 
       # Remove item from the dictionnaries if there is no valid interval
-      if dStationStartEndDates[sStation]["monthly"] == False and \
+      if dStationStartEndDates[sStation]["monthly"] == None and \
          dStationStartEndDates[sStation]["daily"] == None and \
          dStationStartEndDates[sStation]["hourly"] == None:
-         my_print("\tStation does not have any valid date period.",\
+         my_print("\tStation does not have any valid data to download.",\
                   nMessageVerbosity=VERBOSE)
          del dStationStartEndDates[sStation]
          
@@ -733,7 +628,7 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat, bNoClobber):
    for sStation in dStationDates.keys():
       sDirectoryStation = sDirectory + "/" +sStation
       # Check monthly
-      if dStationDates[sStation]["monthly"] == True:
+      if dStationDates[sStation]["monthly"] != None:
          if bNoTree:
             sDirectoryStationMonth = sDirectory
          else:
@@ -797,7 +692,7 @@ def  get_monthly_url(sStation, sLang, sFormat):
 
    return sURL
 
-def  get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
+def get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
    """
    INPUT
    sStation: station ID
@@ -831,7 +726,7 @@ def  get_daily_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobb
 
    return lUrl
 
-def  get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
+def get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobber):
    """
    INPUT
    sStation: station ID
