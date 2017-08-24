@@ -45,7 +45,7 @@ from dateutil import rrule
 # From progress https://pypi.python.org/pypi/progress
 from progress.bar import Bar
 
-VERSION = "0.5"
+VERSION = "0.6"
 # Verbose level:
 ## 1 Normal mode
 ## 2 Full debug
@@ -514,7 +514,7 @@ def check_period(sStation, lDateRequested, sFirstYear, sLastYear, sPeriod):
       bInterval = check_specific_date(sStation, timeDate, \
                                       timeFirstYear, timeLastYear, sPeriod=sPeriod)
       if bInterval :
-         sRequestedYear = datetime.datetime.strftime(timeDate, "%Y")
+         sRequestedYear = datetime.datetime.strftime(timeDate, "%Y-%m")
          my_print("\tgetting " +sPeriod  +" values for period: [" +\
                   sRequestedYear + "," + sRequestedYear + "]" , nMessageVerbosity=VERBOSE)
          lInterval = [sRequestedYear, sRequestedYear]
@@ -541,7 +541,7 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
 
    INPUT
    lStationRequested: List of Station ID of requested stations.
-   dObsPeriod: Dictionnary linking the hourly/daily/monthly obs period request to a boolean.
+   dObsPeriod: Dictionnary linking the hourly/daily/monthly/climate obs period request to a boolean.
    lDateRequested: List of requested dates in strptime format. In order:
      1- Specific date
      2- Start date
@@ -549,11 +549,11 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
 
    OUTPUT
    dStationStartEndDates: dictionnary with station ID as key. Each station is linked to a 
-   dictionnary with 3 keys: "monthly" "daily" "hourly"
+   dictionnary with keys: "monthly" "daily" "hourly" "climate"
    "monthly" only needs a boolean, since one file covers the whole period. You download the file, or you don't.
    "daily" is a list of years [YYYY, YYYY]
    "hourly" is a list of year and month [YYYY-MM, YYYY-MM]
-
+   "climate" only needs a boolean, since one file covers the whole period. You download the file, or you don't.
    
  
    """
@@ -563,10 +563,11 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
       dStation = dStationList[sStation]      
 
       # Initialisation of the start/end date dictionnary
-      dStationStartEndDates[sStation] = { "monthly" : False , \
+      dStationStartEndDates[sStation] = { "monthly" : None , \
                                           "daily" :  None , \
-                                          "hourly" :  None }
-                                          
+                                          "hourly" :  None ,\
+                                          "climate" : None }
+
       if dObsPeriod["monthly"]: # Check for monthly values
          sFirstYear = dStation["MLY First Year"]
          sLastYear = dStation["MLY Last Year"]
@@ -587,11 +588,17 @@ def set_interval_date(lStationRequested, dObsPeriod, lDateRequested):
 
          dStationStartEndDates[sStation]["hourly"] = \
                                                    check_period(sStation, lDateRequested, sFirstYear, sLastYear, "hourly")
+                
+      if dObsPeriod["climate"]: # Check for climate values
+         # Since we can't use the Station inventory to know if the file exists, we download it if requested.
+         dStationStartEndDates[sStation]["climate"] = True
+         
 
       # Remove item from the dictionnaries if there is no valid interval
       if dStationStartEndDates[sStation]["monthly"] == None and \
          dStationStartEndDates[sStation]["daily"] == None and \
-         dStationStartEndDates[sStation]["hourly"] == None:
+         dStationStartEndDates[sStation]["hourly"] == None and \
+         dStationStartEndDates[sStation]["climate"] == None :
          my_print("\tStation does not have any valid data to download.",\
                   nMessageVerbosity=VERBOSE)
          del dStationStartEndDates[sStation]
@@ -627,6 +634,7 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat, bNoClobber):
    lUrlPath = []
    for sStation in dStationDates.keys():
       sDirectoryStation = sDirectory + "/" +sStation
+      
       # Check monthly
       if dStationDates[sStation]["monthly"] != None:
          if bNoTree:
@@ -639,7 +647,7 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat, bNoClobber):
             my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
                      nMessageVerbosity=NORMAL)
          else:
-            sMonthlyURL = get_monthly_url(sStation, sLang, sFormat)
+            sMonthlyURL = get_simple_url(sStation, sLang, sFormat, "3")
             lUrlPath.append([sMonthlyURL,sDirectoryStationMonth])
 
       # Check daily
@@ -667,11 +675,26 @@ def create_url(dStationDates, sDirectory, bNoTree, sLang, sFormat, bNoClobber):
          for sHourlyURL in lHourlyURL:           
             lUrlPath.append([sHourlyURL,sDirectoryStationHour])
 
+      # Check Climate
+      if dStationDates[sStation]["climate"] != None:
+         if bNoTree:
+            sDirectoryStationClimate = sDirectory
+         else:
+            sDirectoryStationClimate = sDirectoryStation + "/climate"
+
+         sPathWildCard = sDirectoryStationClimate + "/" + sLang + "*-almanac-????-????." + sFormat
+         if bNoClobber and glob.glob(sPathWildCard) :
+            my_print("File already exists:\n\t" + sPathWildCard + "\n\tSkipping",\
+                     nMessageVerbosity=NORMAL)
+         else:
+            sClimateURL = get_simple_url(sStation, sLang, sFormat, "4")
+            lUrlPath.append([sClimateURL,sDirectoryStationClimate])
+
    my_print("Number of files to download: " + str(len(lUrlPath)), \
             nMessageVerbosity=VERBOSE)
    return lUrlPath
 
-def  get_monthly_url(sStation, sLang, sFormat):
+def get_simple_url(sStation, sLang, sFormat, sTimeFrame):
    """
    INPUT
    sStation: station ID
@@ -685,10 +708,10 @@ def  get_monthly_url(sStation, sLang, sFormat):
    
    if sLang == "en": # value of 'year' and 'month" are dummy value. It has to be set, but any value will do
       sURL = ECCC_WEBSITE_URL_EN.format(station=sStation, format=sFormat, \
-                                        timeframe="3", year="2000", month="01")
+                                        timeframe=sTimeFrame, year="2000", month="01")
    elif sLang == "fr":
       sURL = ECCC_WEBSITE_URL_FR.format(station=sStation, format=sFormat, \
-                                        timeframe="3", year="2000", month="01")
+                                        timeframe=sTimeFrame, year="2000", month="01")
 
    return sURL
 
@@ -763,6 +786,8 @@ def get_hourly_url(sStation, sLang, sFormat, lStartEndTime, sDirectory, bNoClobb
          lUrl.append(sURL)
 
    return lUrl
+
+
 
 def download_files(lUrlAndPath, bDryRun):
    """
@@ -840,7 +865,7 @@ def get_canadian_weather_observations(tOptions):
    # Fetch the requested stations
    lStationList = fetch_requested_stations(tOptions.Input)
    if len(lStationList) == 0: # If nothing fits.
-      my_print ("No station found corresponding to arguments: ", \
+      my_print ("No station found corresponding to input: ", \
                 nMessageVerbosity=NORMAL)
       my_print (tOptions.Input, nMessageVerbosity=NORMAL)
       return
@@ -863,7 +888,9 @@ def get_canadian_weather_observations(tOptions):
    # Check if the requested dates are available for each station
    dObsPeriod = { "hourly"  : tOptions.Hourly,\
                   "daily"   : tOptions.Daily, \
-                  "monthly" :tOptions.Monthly}  
+                  "monthly" : tOptions.Monthly, \
+                  "climate" : tOptions.Climate }
+   
    dStationStartEndDates = set_interval_date(lStationList, dObsPeriod, lRequestedDate)
 
    if len(dStationStartEndDates.keys()) == 0: # If nothing fits.
@@ -938,6 +965,10 @@ def get_command_line():
    parser.add_argument("--monthly", "-M", dest="Monthly", \
                      help="Get averages for each month, derived from daily data values (1 file for the whole period)",\
                      action="store_true", default=False)
+   parser.add_argument("--climate", "-C", dest="Climate", \
+                     help="Get the Almanac Averages and Extremes for this station (1 file for the whole period)",\
+                     action="store_true", default=False)
+   
    
    parser.add_argument("--info", "-I", dest="Information", \
                      help="Get and print the information (lat, lon, code, start/end date, etc.) for the selected station(s) and exit.",\
@@ -970,10 +1001,11 @@ def get_command_line():
    if options.Hourly is False and \
       options.Daily is False and \
       options.Monthly is False and \
+      options.Climate is False and \
       options.Information is False:
       print ("Error: no observation period indicated.")
       print ("Please choose for one or more of these options:")
-      print ("--hourly --daily --monthly")
+      print ("--hourly --daily --monthly --climate")
       exit(4)
       
       
