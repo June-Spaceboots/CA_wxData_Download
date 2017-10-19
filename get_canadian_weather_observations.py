@@ -351,9 +351,14 @@ def fetch_requested_stations(lInput):
             my_print("Warning: requested airport code not in station list: '" + sElement +\
                      "'\nIgnoring", nMessageVerbosity=NORMAL)
       elif sElement.isdigit(): # Station ID
-         my_print("Station code added: " +sElement, \
-                  nMessageVerbosity=VERBOSE)
-         lStationRequested.append(sElement)
+         if sElement in dStationList.keys():
+            my_print("Station code added in list: " +sElement, nMessageVerbosity=VERBOSE)
+            my_print("Corresponding station: " + \
+                    str(dStationList[sElement]) , nMessageVerbosity=VERBOSE)
+            lStationRequested.append(sElement)
+         else:
+            my_print("Warning: requested station code not in station list: '" + sElement +\
+                     "'\nIgnoring", nMessageVerbosity=NORMAL)
       elif len(sElement) == 2 :
          if sElement in lProvTerrCode: # Province or territory
             my_print("Station in province or territory added: " +sElement, \
