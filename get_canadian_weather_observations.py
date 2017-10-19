@@ -350,7 +350,11 @@ def fetch_requested_stations(lInput):
          else:
             my_print("Warning: requested airport code not in station list: '" + sElement +\
                      "'\nIgnoring", nMessageVerbosity=NORMAL)
-      elif len(sElement) == 2:
+      elif sElement.isdigit(): # Station ID
+         my_print("Station code added: " +sElement, \
+                  nMessageVerbosity=VERBOSE)
+         lStationRequested.append(sElement)
+      elif len(sElement) == 2 :
          if sElement in lProvTerrCode: # Province or territory
             my_print("Station in province or territory added: " +sElement, \
                      nMessageVerbosity=VERBOSE)
@@ -359,10 +363,6 @@ def fetch_requested_stations(lInput):
             my_print("Warning: requested province or territory not in list: '" + sElement +\
                      "'\nOptions are:", nMessageVerbosity=NORMAL)
             my_print(lProvTerrCode, nMessageVerbosity=NORMAL)
-      elif sElement.isdigit(): # Station ID
-         my_print("Station code added: " +sElement, \
-                  nMessageVerbosity=VERBOSE)
-         lStationRequested.append(sElement)
       else: # Argument did not fit any criteria
             my_print("Warning: requested argument not valid: '" + sElement +\
                      "' Skipping.", nMessageVerbosity=NORMAL)
