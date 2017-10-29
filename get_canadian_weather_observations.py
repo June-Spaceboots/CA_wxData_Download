@@ -941,7 +941,7 @@ def get_command_line():
                      help="Use this local version located at PATH for the station list instead of the online version on the EC Climate web site.",\
                      action="store", type=str, default=None)   
    parser.add_argument("--dry-run", "-t", dest="DryRun", \
-                     help="Execute the program, but do not download any file",\
+                     help="Execute the program, print the URL but do not download any file",\
                        action="store_true", default=False)
    parser.add_argument("--lang", "-l", dest="Language", metavar=("[en|fr]"), 
                        choices=["fr","en"], \
