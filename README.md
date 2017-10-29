@@ -55,7 +55,7 @@ where:
 | `-N` `--no-clobber`                      | Do not overwrite an existing file.|
 | `-S` `--station-list`&nbsp;PATH          | You can download the station list file (in [English](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or [French](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)) on your local drive and use this file locate at PATH, instead of downloading the online version on the EC Climate web site. Using local file can save a lot of time. If you use this file, you have to set the corresponding language by using the `--lang` option.|
 | `-l` `--lang` [en&#124;fr]               | Language in which the data will be downloaded (en = English, fr = French). Default is English.|
-|`-t`  `--dry-run`                         | Execute the program, but do not download the files.|
+|`-t`  `--dry-run`                         | Execute the program, print the URL but do not download the files.|
 |`-F` `--format`&nbsp;[csv&#124;xml]       | Download the files in CSV or XML format. Default value is CSV.|
 |`-d` `--date` YYYY[-MM]                   | Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided. If no date is provided, download the date for the full period.|
 |`-e` `--start-date` YYYY[-MM]             | Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.|
