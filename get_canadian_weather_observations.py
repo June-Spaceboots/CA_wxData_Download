@@ -305,23 +305,36 @@ def load_station_list(sPath):
    # Skip the first 4 lines
    for i in range(4):
       next(station_list)
-   for row in station_list:
-      # EC internal station code
-      nStationCode = row["Station ID"]
-      dStationList[nStationCode] = row
 
-      # If the station correspond to an airport
-      sAirport = row["TC ID"]
-      if len(sAirport) == 3:
-         if sAirport not in dStationAirport.keys():
-            dStationAirport[sAirport] = []
-         dStationAirport[sAirport].append(nStationCode)
+   try:
+      for row in station_list:
+         # EC internal station code
+         nStationCode = row["Station ID"]
+         dStationList[nStationCode] = row
 
-      # Order by province/territory
-      sProvTerr = row["Province"]
-      dProvTerrList[dProvCode[sProvTerr]].append(nStationCode)
+         # If the station correspond to an airport
+         sAirport = row["TC ID"]
+         if len(sAirport) == 3:
+            if sAirport not in dStationAirport.keys():
+               dStationAirport[sAirport] = []
+            dStationAirport[sAirport].append(nStationCode)
 
-      
+         # Order by province/territory
+         sProvTerr = row["Province"]
+         dProvTerrList[dProvCode[sProvTerr]].append(nStationCode)
+   except TypeError:
+      my_print("ERROR: Local station file has an invalid format: " +sPath,\
+               nMessageVerbosity=NORMAL)
+      my_print("Please fix this error or try the online version of station file.")
+      my_print("Exiting")
+      exit(2)
+   except KeyError:
+      my_print("ERROR: Local station file has an invalid format: " +sPath,\
+               nMessageVerbosity=NORMAL)
+      my_print("Do you have the file of the right language? Try using --lang fr.")
+      my_print("Exiting")
+      exit(2)
+
 def fetch_requested_stations(lInput):
    """
    Fetch all the lines in the dictionnary containing all the stations and store them 
