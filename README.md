@@ -23,7 +23,7 @@ ___
 Download
 --------
 The latest package can be downloaded here:<br>
-http://????.ca/climat/get_canadian_weather_obervation.py
+https://framagit.org/MiguelTremblay/get_canadian_weather_observations   
 
 The git version can be accessed here:<br>
  ```git clone https://framagit.org/MiguelTremblay/get_canadian_weather_observations.git```
