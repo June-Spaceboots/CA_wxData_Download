@@ -1,11 +1,6 @@
 [English](README.md)
 
-À faire:
-* Remplace <i> par des italiques
-* Vérifier les hyperliens en français (chercher "traduire")
-
-Télécharger les données d'observations météorologiques canadiennes (<i>Get Canadian Weather Observations
-</i>
+Télécharger les données d'observations météorologiques canadiennes (_Get Canadian Weather Observations_)
 =============
 
 Introduction
@@ -14,7 +9,7 @@ Introduction
 
 `get_canadian_weather_obervation.py` est un logiciel python3 utilisé pour télécharger les [fichiers d'observations d'Environnement et Changement climatique Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_f.html) (ECCC) sur un ordinateur. Ce logiciel est à l'origine un projet personnel de Miguel Tremblay et n'appartient pas à ECCC.
 
-Ce script est basé sur l'information fournie sur le [fichier README disponible sur site web du climat d'ECCC](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). De l'information supplémentaire sur le format de données peut-être trouvé sur le (à traduire)[Digital Archive of Canadian Climatological Data Technical Documentation](ftp://ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). Bien que ce logiciel soit distribué avec la licence GPL version 3, les données téléchargées sont sous la (à traduire) [License Agreement for Use of Environment and Climate Change Canada Data](http://climate.weather.gc.ca/prods_servs/attachment1_e.html).
+Ce script est basé sur l'information fournie sur le [fichier README disponible sur site web du climat d'ECCC](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Lisezmoi.txt). De l'information supplémentaire sur le format de données peut-être trouvé sur le [Documentation technique des archives nationales de données climatologiques](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Documentation_technique.pdf). Bien que ce logiciel soit distribué avec la licence GPL version 3, les données téléchargées sont sous la [Convention de droits d’utilisation d’un produit logiciel et de données d’Environnement et Changement climatique Canada](http://climate.weather.gc.ca/prods_servs/attachment1_f.html).
 
 Ce logiciel fonctionne sous GNU/Linux, Windows et Mac OS X.
 ___
@@ -50,8 +45,8 @@ où:
 * PERIODE est la période pour laquelle les observations sont demandées. Cette option est valide pour les observations de type horaire, quotidienne et mensuelle ([--hourly&#124;--daily&#124;--monthly])
 * ENTREE est une ou plusieurs de ces valeurs:
  * [identificateur ECCC de station](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)
- * (traduire URL)[code de province de deux lettres](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm)
- * (traduire URL)[Code aéroport de trois lettres IATA](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y) (when there is more than one station corresponding to an airport code, all the stations are appended to the list)
+ * [code de province de deux lettres](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-fra.cfm)
+ * [Code aéroport de trois lettres IATA](https://fr.wikipedia.org/wiki/Liste_des_codes_AITA_des_a%C3%A9roports/Y) (lorsqu'il y a plus d'une station correspondant à un code, toutes les stations sont ajoutées à la liste)
  * `all` pour toutes les stations disponibles
 
 
@@ -71,7 +66,7 @@ où:
 |`-H` `--hourly`                           | Télécharger les observations horaires (1 fichier par mois).|
 |`-D` `--daily`                            | Télécharger les observations quotidiennes (1 fichier par année).|
 |`-M` `--monthly`                          | Télécharger les moyennes mensuelles, calculées à partir des observations quotidiennes (1 fichier pour toute la période).|
-|`-C` `--climate`                          | Télécharger les (traduire basé sur le nom sur le site web pour "Almanac Averages and Extreme") extrêmes et moyennes de l'almanach (1 fichier pour toute la période).|
+|`-C` `--climate`                          | Télécharger les moyennes et records de l'almanach (1 fichier pour toute la période).|
 |`-I` `--info`                             | Télécharger et afficher l'information (lat, lon, code, date début/fin, etc.) pour la/les station(s) choisie(s) et quitter.|
 |`-v` `--verbose`                          | Expliquer ce qui se passe.|
 |`-V` `--version`                          | Écrire l'information sur la version et quitter.|
@@ -79,7 +74,7 @@ où:
 Utilisation
 -----
 
-Télécharger les moyennes mensuelles pour (traduire) l'[aéroport de Bagotville](https://en.wikipedia.org/wiki/CFB_Bagotville) en format XML en français (aucune date requise car l'historique des moyennes mensuelles est contenu dans un seul fichier):
+Télécharger les moyennes mensuelles pour l'[aéroport de Bagotville](https://fr.wikipedia.org/wiki/Base_des_Forces_canadiennes_Bagotville) en format XML en français (aucune date requise car l'historique des moyennes mensuelles est contenu dans un seul fichier):
 ```bash
  python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml -l fr YBG
 ```
