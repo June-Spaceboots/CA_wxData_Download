@@ -118,3 +118,19 @@ Latitude (Decimal Degrees):48.33
 WMO ID:71727
 ```
 
+Bogues
+-----
+
+Si vous trouvez un bogue, vous devez le rapporter à [get_canadian_weather_observations.miguel@ptaff.ca](mailto:get_canadian_weather_observations.miguel@ptaff.ca)
+
+Auteur
+-----
+
+[Miguel Tremblay](http://ptaff.ca/miguel/)
+
+Licence
+-----
+
+Copyright © 2018 Miguel Tremblay.
+
+get_canadian_weather_observations est un logiciel libre; vous pouvez le redistribuer et/ou le modifier selon les termes de la GNU General Public License (Licence Publique Générale GNU) telle qu'elle a été publiée par la Free Software Foundation; soit la version 3 de la licence, soit (comme vous le souhaitez) toute version ultérieure.
