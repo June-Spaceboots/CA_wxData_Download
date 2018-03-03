@@ -60,8 +60,7 @@ where:
 |`-t`  `--dry-run`                         | Execute the program, print the URL but do not download the files.|
 |`-F` `--format`&nbsp;[csv&#124;xml]       | Download the files in CSV or XML format. Default value is CSV.|
 |`-d` `--date` YYYY[-MM]                   | Get the observations for this specific date only.  `--end-date` and  `--start-date` are ignored if provided. If no date is provided, download the date for the full period.|
-|`-e` `--start-date` YYYY[-MM]             | Get
-the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.|
+|`-e` `--start-date` YYYY[-MM]             | Get the observations after this date. Stops at `--end-date` if specified, otherwise download the observations until the last observation available.|
 |`-f` `--end-date` YYYY[-MM]               | Get the observations before this date. Stops at `--start-date` if specified, otherwise download the observations until the first observation available.|
 |`-H` `--hourly`                           | Get data values for observations taken on an hourly basis (1 file per month).|
 |`-D` `--daily`                            | Get data values for observations taken once in a 24-hour period (1 file per year).|
