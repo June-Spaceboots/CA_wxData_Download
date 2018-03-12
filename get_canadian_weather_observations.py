@@ -30,6 +30,7 @@ Date: July 25th 2017
 
 import sys
 import os
+import shutil
 import glob
 import datetime
 import urllib
@@ -820,7 +821,7 @@ def download_files(lUrlAndPath, bDryRun):
    create_directories(lDirectories, bDryRun)
    
    # Set the progress bar
-   rows, columns = os.popen('stty size', 'r').read().split()
+   columns = shutil.get_terminal_size()[0]
    nWidth = int(columns) - 32
    bar = Bar('Downloading', max=len(lUrlAndPath), width=int(nWidth))
 
