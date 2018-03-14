@@ -42,7 +42,7 @@ python get_canadian_weather_obervation.py [OPTIONS] [PERIODE] ENTREE
 <br />
 où:
 * OPTIONS sont décrites dans la table plus bas.
-* PERIODE est la période pour laquelle les observations sont demandées. Cette option est valide pour les observations de type horaire, quotidienne et mensuelle ([--hourly&#124;--daily&#124;--monthly])
+* PERIODE est la période pour laquelle les observations sont demandées. Cette option n'est valide que pour les observations de type horaire et quotidienne  mensuelle ([--hourly&#124;--daily]). Les données mensuelles et de l'almanach ([--monthly&#124;--climate]) sont toutes contenues dans un seul fichier et n'ont donc pas besoin de la période.
 * ENTREE est une ou plusieurs de ces valeurs:
  * [identificateur ECCC de station](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)
  * [code de province de deux lettres](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-fra.cfm)
