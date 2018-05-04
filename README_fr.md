@@ -121,7 +121,7 @@ WMO ID:71727
 Bogues
 -----
 
-Si vous trouvez un bogue, vous devez le rapporter à [get_canadian_weather_observations.miguel@ptaff.ca](mailto:get_canadian_weather_observations.miguel@ptaff.ca)
+Si vous trouvez un bogue, vous pouvez le rapporter à [get_canadian_weather_observations.miguel@ptaff.ca](mailto:get_canadian_weather_observations.miguel@ptaff.ca)
 
 Auteur
 -----
