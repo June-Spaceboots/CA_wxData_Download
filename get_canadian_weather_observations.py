@@ -294,12 +294,18 @@ def load_station_list(sPath):
                                        fieldnames=COLUMN_TITLE_EN)
 
       except urllib.error.URLError :
-         my_print ("WARNING: Online CSV list of stations not available", \
+         my_print ("ERROR: Online CSV station list not available.", \
                    nMessageVerbosity=NORMAL)
-         my_print ("Cannot reach:\n '" +\
+         my_print ("Cannot reach the FTP web site.\n",\
+                   nMessageVerbosity=NORMAL)
+         my_print ("This can be caused by firewall settings or by the FTP site being unreachable.\n Try accessing the URL through a web browser:\n '" +\
                     dLang['station_list_URL']+ "'\n", nMessageVerbosity=NORMAL)
-         my_print ("Using the local version instead. Station list may be not up to date.",\
-                   nMessageVerbosity=NORMAL)
+         my_print ("If not working, the FTP server may be experiencing down time.\n",\
+                    nMessageVerbosity=NORMAL) 
+         my_print ("Local station list not provided.\n You can try using a local version provided with get_canadian_weather_observations.py with '-S' arguments in command line. Exiting.",\
+                      nMessageVerbosity=NORMAL)
+         exit(9)
+            
 
 
    # Fill the dictionnaries with the station list
