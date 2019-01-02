@@ -6,9 +6,9 @@ Get Canadian Weather Observations
 Introduction
 ------------
 
-`get_canadian_weather_obervation.py` is a python3 software used to download the [observation files from Environment and Climate change Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (ECCC) to a computer. This software is originally a personal project of Miguel Tremblay and does not belong to ECCC.
+`get_canadian_weather_obervation.py` is a python3 software used to download the [observation files from the Meteorological Service of Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (MSC) to a computer. This software is originally a personal project of Miguel Tremblay and does not belong to the SMC.
 
-This script is based on the information provided on the [ECCC Climate web site README](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). More information about the data format can be found on the [Digital Archive of Canadian Climatological Data Technical Documentation](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). The description of the weather elements in the files can be found in the [glossary of the ECCC climate data web site](http://climate.weather.gc.ca/glossary_e.html). While this software is distributed under the GPL Version 3 license, the downloaded data is under the [Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada).
+This script is based on the information provided on the [MSC Climate web site README](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). More information about the data format can be found on the [Digital Archive of Canadian Climatological Data Technical Documentation](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). The description of the weather elements in the files can be found in the [glossary of the MSC climate data web site](http://climate.weather.gc.ca/glossary_e.html). While this software is distributed under the GPL Version 3 license, the downloaded data is under the [Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada).
 
 This software works under GNU/Linux, Windows and Mac OS X.
 ___
@@ -43,7 +43,7 @@ where:
 * OPTIONS are described in the table below.
 * PERIOD is the period of requested observations. This option is valid for these types of observations [--hourly&#124;--daily&#124;--monthly]
 * INPUT is one or many of these values:
- * [ECCC internal station ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
+ * [MSC internal station ID](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
  * [two-letter province code](http://www12.statcan.gc.ca/census-recensement/2011/ref/dict/table-tableau/table-tableau-8-eng.cfm)
  * [three-letter IATA airport code](https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_Y) (when there is more than one station corresponding to an airport code, all the stations are appended to the list)
  * `all` for all available stations
@@ -52,10 +52,10 @@ where:
 | Options                                  | Description |
 | -------                                  | ------------|
 | `-h`, `--help`                           | Show help message and exit.|
-| `-o` `--output-directory`&nbsp;DIRECTORY | Directory where the files will be downloaded, in their corresponding subdirectory when requested (see `--no-tree` option). Default value is where the script get_canadian_weather_observations.py is located. Sub-directories take the form of STATION-ID/OBS-TYPE, where "STATION-ID" is the ECCC station ID number, and "OBS-TYP" is one of the four observation types: "hourly", "daily", "monthly" or "almanac".|
+| `-o` `--output-directory`&nbsp;DIRECTORY | Directory where the files will be downloaded, in their corresponding subdirectory when requested (see `--no-tree` option). Default value is where the script get_canadian_weather_observations.py is located. Sub-directories take the form of STATION-ID/OBS-TYPE, where "STATION-ID" is the MSC station ID number, and "OBS-TYP" is one of the four observation types: "hourly", "daily", "monthly" or "almanac".|
 | `-n` `--no-tree`                         | Do not create directories, download all the files in the output directory.|
 | `-N` `--no-clobber`                      | Do not overwrite an existing file. File is not downloaded.|
-| `-S` `--station-list`&nbsp;PATH          | Use the file for the station list located at PATH on your local computer instead of downloading the online version on the ECCC Climate web site. You can download the station list file (in [English](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or in [French](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)). Using local file can save a lot of time. If you use this file, you have to set the corresponding language by using the `--lang` option.|
+| `-S` `--station-list`&nbsp;PATH          | Use the file for the station list located at PATH on your local computer instead of downloading the online version on the MSC Climate web site. You can download the station list file (in [English](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) or in [French](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/R%E9pertoire%20des%20stations%20FR.csv)). Using local file can save a lot of time. If you use this file, you have to set the corresponding language by using the `--lang` option.|
 | `-l` `--lang` [en&#124;fr]               | Language in which the data will be downloaded (en = English, fr = French). Default is English.|
 |`-t`  `--dry-run`                         | Execute the program, print the URL but do not download the files.|
 |`-F` `--format`&nbsp;[csv&#124;xml]       | Download the files in CSV or XML format. Default value is CSV.|
