@@ -6,7 +6,7 @@ Get Canadian Weather Observations
 Introduction
 ------------
 
-`get_canadian_weather_obervation.py` is a python3 software used to download the [observation files from the Meteorological Service of Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (MSC) to a computer. This software is originally a personal project of Miguel Tremblay and does not belong to the SMC.
+`get_canadian_weather_observations.py` is a python3 software used to download the [observation files from the Meteorological Service of Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html) (MSC) to a computer. This software is originally a personal project of Miguel Tremblay and does not belong to the SMC.
 
 This script is based on the information provided on the [MSC Climate web site README](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Readme.txt). More information about the data format can be found on the [Digital Archive of Canadian Climatological Data Technical Documentation](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Technical_Documentation.pdf). The description of the weather elements in the files can be found in the [glossary of the MSC climate data web site](http://climate.weather.gc.ca/glossary_e.html). While this software is distributed under the GPL Version 3 license, the downloaded data is under the [Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada).
 
@@ -36,7 +36,7 @@ Manual
 
 In a general way, this software should be called in command line like this:
 ```bash
-python get_canadian_weather_obervation.py [OPTIONS] [PERIOD] INPUT
+python get_canadian_weather_observations.py [OPTIONS] [PERIOD] INPUT
 ```
 <br />
 where:
@@ -75,19 +75,19 @@ Usage
 
 Get the monthly averages for the [Bagotville Airport station](https://en.wikipedia.org/wiki/CFB_Bagotville) in XML French format (no date required, as all the historical monthly averages are contained in one file):
 ```bash
- python get_canadian_weather_obervation.py --monthly -o /home/miguel/bagotville -f xml -l fr YBG
+ python get_canadian_weather_observations.py --monthly -o /home/miguel/bagotville -f xml -l fr YBG
 ```
 <br />
 
 Get all the hourly observations for all the Canadian stations for the year 2012 in CSV English format:
 ```bash
- python get_canadian_weather_obervation.py --hourly -o /home/miguel/download --date 2012 all
+ python get_canadian_weather_observations.py --hourly -o /home/miguel/download --date 2012 all
 ```
 <br />
 
 Get all the hourly and daily observations for all the British Columbian stations for the decade 1980-1989 in CSV English format:
 ```bash
- python get_canadian_weather_obervation.py --hourly --daily --start-date 1980-01 --end-date 1990-01 -o /home/miguel/download BC
+ python get_canadian_weather_observations.py --hourly --daily --start-date 1980-01 --end-date 1990-01 -o /home/miguel/download BC
 ```
 <br />
 
