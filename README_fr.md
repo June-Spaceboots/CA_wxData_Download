@@ -7,7 +7,7 @@ Introduction
 ------------
 
 
-`get_canadian_weather_obervation.py` est un logiciel python3 utilisé pour télécharger les [fichiers d'observations du Service météorologique du Canada Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_f.html) (SMC) sur un ordinateur. Ce logiciel est à l'origine un projet personnel de Miguel Tremblay et n'appartient pas au SMC.
+`get_canadian_weather_obervation.py` est un logiciel python3 utilisé pour télécharger les [fichiers d'observations du Service météorologique du Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_f.html) (SMC) sur un ordinateur. Ce logiciel est à l'origine un projet personnel de Miguel Tremblay et n'appartient pas au SMC.
 
 Ce script est basé sur l'information fournie sur le [fichier README disponible sur site web du climat du SMC](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Lisezmoi.txt). De l'information supplémentaire sur le format de données peut-être trouvée dans la [documentation technique des archives nationales de données climatologiques](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Documentation_Technical/Documentation_technique.pdf). La description des éléments du temps dans les fichiers est décrite dans le [glossaire du site web sur les données climatiques du SMC](http://climate.weather.gc.ca/glossary_f.html). Bien que ce logiciel soit distribué avec la licence GPL version 3, les données téléchargées sont sous la [Licence du gouvernement ouvert – Canada](https://ouvert.canada.ca/fr/licence-du-gouvernement-ouvert-canada).
 
