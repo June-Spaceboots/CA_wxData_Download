@@ -59,7 +59,7 @@ nGlobalVerbosity = 1
 dLang = {}
 
 # URLs
-ECCC_WEBSITE_URL = "http://climate.weather.gc.ca/"
+ECCC_WEBSITE_URL = "https://climate.weather.gc.ca/"
 ECCC_FTP_URL = "ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/"
 STATION_LIST_EN = ECCC_FTP_URL + "Station%20Inventory%20EN.csv"
 STATION_LIST_FR = ECCC_FTP_URL + "Répertoire%20des%20stations%20FR.csv"
