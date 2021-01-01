@@ -1,0 +1,93 @@
+###  Monthly  ####
+
+# --date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --date 2014
+
+# --date invalid
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --date 2016
+
+ # --date valid for one, not for the other
+  ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly  --verbose --date 2014 YBG 5863
+
+
+# --start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --start-date 2011
+
+# --start-date invalid
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --start-date 2016
+
+# --start-date valid for one, not for the other
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly  --verbose --start-date 1950 YBG 5863
+
+
+ ##--end-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --end-date 2014
+
+##--	end-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly YBG --verbose --end-date 1900
+
+##--	end-date valid for one, not for the other
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --monthly  --verbose --end-date 2000 5863 YBG
+
+
+### Daily ###
+
+## --date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --date 2014
+
+## --date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --date 2020
+
+ # --date valid for one, not for the other
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily  --verbose --date 2000 YBG 5863
+
+
+##--	start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --start-date 2014
+
+##--	start-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --start-date 2020
+ 
+##--	start-date valid for one, not for the other
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily  --verbose --start-date 2000  YBG 5863
+ 
+ ##--end-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --end-date 2014
+
+##--	end-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily YBG --verbose --end-date 1900
+
+##--	end-date valid for one, not for the other
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --daily  --verbose --end-date 2000 YBG 5863
+
+
+### Hourly ###
+
+## --date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --date 2014
+
+## --date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --date 2020
+
+## --date valid for one, but not the other
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly  --verbose --date 2000 YBG 5863 YUL
+
+
+##--	start-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --start-date 2014
+
+##--	start-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --start-date 2020
+
+##--	start-date valid for one, but not the other
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly --verbose --start-date 2000 YBG YUL
+
+##--	end-date valid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --end-date 2014
+
+##--	end-date invalid
+ ./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly YBG --verbose --end-date 1900
+ 
+##--	end-date valid for one, but not the other
+./get_canadian_weather_observations.py  -S station_list/Station\ Inventory\ EN.csv --hourly  --verbose --end-date 2011 YUL YBG
+
